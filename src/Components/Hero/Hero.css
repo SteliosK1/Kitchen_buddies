@@ -1,0 +1,63 @@
+.hero{
+    width: 1200px;
+    height: auto;
+    margin: auto;
+    color: #ececec;
+    position: relative;
+}
+.hero h1{
+    font-family: 'Times New Roman';
+    font-size: 50px;
+    padding-left: 20px;
+    margin-top: 9%;
+    letter-spacing: 2px;
+}
+.hero .par{
+    padding-left: 20px;
+    padding-bottom: 25px;
+    font-family: Arial;
+    letter-spacing: 1.2px;
+    line-height: 30px;
+}
+.hero .cn{
+    width: 160px;
+    height: 40px;
+    background: #8cabab;
+    border: none;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: .4s ease;
+}
+
+.hero .cn a{
+    text-decoration: none;
+    color: #000;
+    transition: .3s ease;
+}
+
+.hero .cn:hover{
+    background: #fff;
+    
+}
+.hero span{
+    color: #ececec;
+    font-size: 65px
+}
+.Hero {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.HeroImage {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  background-position: center 45%;
+  background-size: cover;
+}
+  
+  

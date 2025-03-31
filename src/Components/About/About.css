@@ -1,0 +1,35 @@
+.about-content {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-content h1 {
+    font-size: 3em;
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 20px;
+    color: #e3a975;
+}
+
+.about-content h2 {
+    font-size: 2.5em;
+    margin-top: 30px;
+    color: #d95a5a;
+    font-style: italic;
+}
+
+.about-paragraph {
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: #ebe2e2;
+    margin-bottom: 20px;
+}
+
+.about-image img {
+    margin-top: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(219, 16, 16, 0.1);
+    max-width: 100%;
+    height: auto;
+}
