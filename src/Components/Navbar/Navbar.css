@@ -1,23 +1,27 @@
 .navbar{    
-    height: 75px;
-    width: 1200px;
+    /* height: 75px; */
+    display:flex;
+    justify-content: space-between;
+    /* width: 1200px; */
     margin: auto;
+    transition: all 0.3s ease-in-out;
 }
 
 .icon{
     width: 200px;
-    float: left;
-    height: 70px;
+    /* float: left;
+    height: 70px; */
 }
 
-.logo{
+.logo{  
     color: #e57e26;
     font-size: 40px;
     font-family: Arial;
     padding-left: 20px;
-    float: left;
+    /* float: left; */
     padding-top: 10px;
     margin-top: 5px;
+    transition: all 0.3s ease-in-out;
 }
 
 .logo-link {
@@ -26,26 +30,29 @@
 }
 
 .menu{
-    width: 770px; /* Αύξησε το πλάτος για καλύτερη στοίχιση */
-    float: none; /* Αφαίρεσε το float */
-    height: 70px;
-    margin: 0 auto; /* Κεντράρει το μενού */
-    display: flex; /* Χρησιμοποίησε flexbox */
-    justify-content: flex-start; /* Μετακινεί τα στοιχεία προς τα αριστερά */
+    /* width: 770px; Αύξησε το πλάτος για καλύτερη στοίχιση */
+    /* float: none; Αφαίρεσε το float */
+    /* height: 70px; */
+    /* margin: auto;  */
+    display: flex; 
+    align-items: center;
+    /* justify-content: flex-start;  */
 }
 
-ul{
-    float: left;
+.menu > ul{
+    /* float: left; */
     display: flex;
-    justify-content: center;
-    align-items: center;
+    gap:0 2rem;
+    /* justify-content: center;
+    align-items: center; */
     list-style: none;
 }
 
 ul li{
-    margin-left: 60px; /* Μείωσε το περιθώριο για να είναι πιο κοντά */
-    margin-top: 30px;
+    /* margin-left: 60px; 
+    margin-top: 30px; */
     font-size: 18px;
+    transition: all 0.3s ease-in-out;
 }
 
 ul li a{
@@ -60,4 +67,97 @@ ul li a{
 ul li a:hover{
     color: #8cabab;
     text-decoration: underline;
+}
+
+
+/* Media Queries */
+
+/* Για tablet (πλάτος οθόνης έως 768px) */
+@media (max-width: 768px) {
+    /* Removed empty .navbar ruleset */
+
+    .logo {
+        font-size: 30px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+
+    .menu {
+        width: 100%; /* Προσαρμογή πλάτους */
+        justify-content: center; /* Κεντράρισμα μενού */
+    }
+
+    ul li {
+        margin-left: 30px; /* Μείωση περιθωρίου */
+        font-size: 16px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+}
+
+/* Για κινητά (πλάτος οθόνης έως 480px) */
+@media (max-width: 480px) {
+    .navbar {
+        width: 100%; /* Πλήρες πλάτος */
+        height: 60px; /* Μείωση ύψους */
+    }
+
+    .logo {
+        font-size: 24px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+
+    .menu {
+        flex-direction: column; /* Κάθετη στοίχιση */
+        align-items: center;
+    }
+
+    ul li {
+        margin-left: 0; /* Αφαίρεση περιθωρίου */
+        margin-top: 10px; /* Προσθήκη κάθετου περιθωρίου */
+        font-size: 14px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+}
+
+.search-bar-container {
+  position: relative;
+  width: 22%;
+  padding-top: 3%;
+  padding-right: 1%;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  margin-top: -10%;
+}
+
+.dropdown-item {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown-image {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  border-radius: 4px;
 }

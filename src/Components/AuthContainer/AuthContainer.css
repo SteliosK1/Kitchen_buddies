@@ -1,0 +1,20 @@
+
+.form-container {
+  padding-left: 20px;
+}
+
+.toggle-button {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  background-color: #8cabab;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #6b8f8f;
+}

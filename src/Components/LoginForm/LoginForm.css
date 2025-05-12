@@ -1,11 +1,10 @@
 .form{
     width: 285px;
-    height: 430px;
+    height: 470px;
     background: linear-gradient(to top, rgba(0,0,0,0.8)50%,rgba(0,0,0,0.8)50%);
     position: absolute;
-    top: 160px;
-    right: 150px;
-    transform: translate(0%,-5%);
+    top: 140px;
+    right: 10px;
     border-radius: 10px;
     padding: 25px;
 }
@@ -20,6 +19,7 @@
     border-radius: 10px;
     margin: 2px;
     padding: 8px;
+    transition: all 0.3s ease-in-out;
 }
 
 .form input{
@@ -35,6 +35,7 @@
     letter-spacing: 1px;
     margin-top: 30px;
     font-family: sans-serif;
+    transition: all 0.3s ease-in-out; 
 }
 
 .form input:focus{
@@ -47,7 +48,7 @@
 }
 
 .btnn{
-    width: 240px;
+    width: 225px;
     height: 40px;
     background: #8cabab;
     border: none;
@@ -103,4 +104,56 @@
   
 .social-icons a:hover {
     color: #007bff; /* Μπλε χρώμα κατά το hover */
+}
+
+/* Media Queries */
+
+/* Για tablet (πλάτος οθόνης έως 768px) */
+@media (max-width: 768px) {
+    .form {
+        width: 80%; /* Μείωση πλάτους */
+        height: auto; /* Αυτόματο ύψος */
+        top: 20px; /* Προσαρμογή θέσης */
+        right: 10px;
+        transform: translate(0%, 0%);
+    }
+
+    .form h2 {
+        font-size: 20px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+
+    .form input {
+        width: 90%; /* Μείωση πλάτους */
+        font-size: 14px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+
+    .btnn {
+        width: 90%; /* Μείωση πλάτους */
+        font-size: 16px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+}
+
+/* Για κινητά (πλάτος οθόνης έως 480px) */
+@media (max-width: 480px) {
+    .form {
+        width: 95%; /* Ακόμα μικρότερο πλάτος */
+        height: auto; /* Αυτόματο ύψος */
+        top: 10px; /* Προσαρμογή θέσης */
+        right: 5px;
+        transform: translate(0%, 0%);
+    }
+
+    .form h2 {
+        font-size: 18px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+
+    .form input {
+        width: 100%; /* Πλήρες πλάτος */
+        font-size: 13px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+
+    .btnn {
+        width: 100%; /* Πλήρες πλάτος */
+        font-size: 14px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
 }

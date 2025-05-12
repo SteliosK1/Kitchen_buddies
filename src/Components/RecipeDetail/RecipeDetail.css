@@ -1,0 +1,117 @@
+/* General styles for the recipe detail container */
+.recipe-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Recipe title */
+.recipe-detail h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+/* Recipe image */
+.recipe-detail img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Recipe description */
+.recipe-detail p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Section headings (e.g., Ingredients, Steps) */
+.recipe-detail h3 {
+  font-size: 1.8rem;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  color: #34495e;
+}
+
+/* Lists for ingredients and steps */
+.recipe-detail ul,
+.recipe-detail ol {
+  margin-left: 20px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.recipe-detail ul li,
+.recipe-detail ol li {
+  margin-bottom: 10px;
+}
+
+.recipe-detail ul {
+  list-style-type: disc;
+}
+
+.recipe-detail ol {
+  list-style-type: decimal;
+}
+
+/* Rating stars */
+.recipe-detail .rating-stars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #f39c12; /* Gold color for stars */
+}
+
+/* Timer and favorite icon container */
+.recipe-timer-favorite {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Space between timer and favorite icon */
+  margin: 10px 0 20px;
+}
+
+/* Timer styles */
+.recipe-timer {
+  font-size: 1.2rem;
+  color: #2c3e50; /* Darker color for the timer */
+  font-weight: bold;
+}
+
+/* Favorite icon styles */
+.favorite-icon {
+  font-size: 2rem;
+  cursor: pointer;
+  color: #f39c12; /* Default color for the heart */
+  transition: transform 0.2s ease, color 0.2s ease;
+  text-shadow: #f00 0px 0px 4px;
+}
+
+.favorite-icon:hover {
+  transform: scale(1.2); /* Slightly enlarge on hover */
+  color: #e74c3c; /* Change color on hover */
+}
+
+.instructions {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.6;
+  padding: 1rem;
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-top: 1rem;
+}

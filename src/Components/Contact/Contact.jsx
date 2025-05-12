@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Contact.css'; // Assuming you have a CSS file for styling
+import './Contact.css';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +10,6 @@ const Contact = () => {
     message: '',
   });
 
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
@@ -21,21 +18,16 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFormData({
-      firstName: '',
-      lastName: '',
-      email: '',
-      mobile: '',
-      message: '',
-    }); // Clear the form
-    navigate('/contact?success=true'); // Redirect with success message in URL
+  const handleSendEmail = () => {
+    const subject = `Message from ${formData.firstName} ${formData.lastName}`;
+    const body = `Name: ${formData.firstName} ${formData.lastName}%0D%0AEmail: ${formData.email}%0D%0AMobile: ${formData.mobile}%0D%0A%0D%0AMessage:%0D%0A${formData.message}`;
+    const mailtoLink = `mailto:tostsidisth12e@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+    window.location.href = mailtoLink;
   };
 
   return (
     <div className="container">
-      <form onSubmit={handleSubmit}>
+      <form>
         <h1>Contact Us Form</h1>
         <input
           type="text"
@@ -67,7 +59,7 @@ const Contact = () => {
           placeholder="Mobile"
           value={formData.mobile}
           onChange={handleChange}
-          pattern='[0-9]*'
+          pattern="[0-9]*"
           required
         />
         <h4>Type Your Message Here...</h4>
@@ -78,7 +70,8 @@ const Contact = () => {
           onChange={handleChange}
           required
         ></textarea>
-        <input type="submit" value="Send" id="button" />
+
+        <input type="button" value="Send" id="button" onClick={handleSendEmail} />
       </form>
     </div>
   );

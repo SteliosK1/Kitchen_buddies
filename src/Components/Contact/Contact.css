@@ -16,9 +16,10 @@
   height: 600px;
   display: flex;
   justify-content: center;
+  border: thin solid #fff4;
   border-radius: 15px;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(30px);
+  backdrop-filter: blur(5px);
   flex-wrap: wrap;
 }
 .container form h1 {
