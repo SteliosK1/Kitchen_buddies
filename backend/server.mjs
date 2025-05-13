@@ -240,6 +240,70 @@ app.get('/api/user-recipes/:id', async (req, res) => {
   }
 });
 
+// Υποβολή αξιολόγησης
+app.post('/api/ratings', async (req, res) => {
+    const { userId, recipeId, rating } = req.body;
+
+    if (!userId || !recipeId || !rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ success: false, message: 'Invalid data' });
+    }
+
+    try {
+        // Ελέγξτε αν υπάρχει ήδη αξιολόγηση για τον χρήστη και τη συνταγή
+        const [existingRating] = await db.execute(
+            'SELECT * FROM ratings WHERE user_id = ? AND recipe_id = ?',
+            [userId, recipeId]
+        );
+
+        if (existingRating.length > 0) {
+            // Ενημέρωση της υπάρχουσας αξιολόγησης
+            await db.execute(
+                'UPDATE ratings SET rating = ? WHERE user_id = ? AND recipe_id = ?',
+                [rating, userId, recipeId]
+            );
+        } else {
+            // Δημιουργία νέας αξιολόγησης
+            await db.execute(
+                'INSERT INTO ratings (user_id, recipe_id, rating) VALUES (?, ?, ?)',
+                [userId, recipeId, rating]
+            );
+        }
+
+        res.json({ success: true, message: 'Rating submitted successfully' });
+    } catch (error) {
+        console.error('Error submitting rating:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Ανάκτηση μέσης αξιολόγησης και αξιολόγησης χρήστη
+app.get('/api/ratings/:recipeId', async (req, res) => {
+    const { recipeId } = req.params;
+    const { userId } = req.query;
+
+    try {
+        // Υπολογισμός μέσης αξιολόγησης
+        const [averageRating] = await db.execute(
+            'SELECT AVG(rating) AS average FROM ratings WHERE recipe_id = ?',
+            [recipeId]
+        );
+
+        // Ανάκτηση αξιολόγησης χρήστη
+        const [userRating] = await db.execute(
+            'SELECT rating FROM ratings WHERE user_id = ? AND recipe_id = ?',
+            [userId, recipeId]
+        );
+
+        res.json({
+            success: true,
+            averageRating: averageRating[0]?.average || 0,
+            userRating: userRating[0]?.rating || null,
+        });
+    } catch (error) {
+        console.error('Error fetching ratings:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
 
 // Εκκίνηση διακομιστή
 app.listen(PORT, () => {

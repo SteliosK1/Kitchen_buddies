@@ -62,12 +62,17 @@
   list-style-type: decimal;
 }
 
-/* Rating stars */
-.recipe-detail .rating-stars {
+/* Container for rating stars and favorite icon */
+.rating-and-favorite {
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between stars and favorite icon */
   margin-bottom: 20px;
+}
+
+/* Rating stars */
+.rating-stars {
   font-size: 1.5rem;
   color: #f39c12; /* Gold color for stars */
 }
@@ -114,4 +119,24 @@
   border: 1px solid #eee;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   margin-top: 1rem;
+}
+
+.rating-section {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.star {
+  font-size: 2rem;
+  color: #ccc;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.star.filled {
+  color: #f39c12;
+}
+
+.star:hover {
+  color: #e67e22;
 }

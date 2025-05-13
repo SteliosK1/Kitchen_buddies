@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './Components/Navbar/Navbar';
-// import Searchbar from './Components/Searchbar/Searchbar';
 import Hero from './Components/Hero/Hero';
-// import LoginForm from './Components/LoginForm/LoginForm';
 import About from './Components/About/About';
 import Recipes from './Components/Recipes/Recipes';
 import RecipeDetail from './Components/RecipeDetail/RecipeDetail';
@@ -11,16 +9,16 @@ import Contact from './Components/Contact/Contact';
 import AuthContainer from './Components/AuthContainer/AuthContainer';
 import Profile from './Components/Profile/Profile';
 import FavoritesPage from './Components/Favorites/FavoritesPage';
-import AddRecipe from './Components/AddRecipe/AddRecipe'; // Πρόσθεσε την εισαγωγή του AddRecipe
+import AddRecipe from './Components/AddRecipe/AddRecipe';
+import { FavoritesProvider } from './Context/FavoritesContext'; // Εισαγωγή του FavoritesProvider
 
 const App = () => {
   const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState(''); // Χρήση του useState για το query αναζήτησης
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const body = document.body;
 
-    // Clear all background classes before adding the correct one
     body.classList.remove(
       'home-background',
       'about-background',
@@ -30,11 +28,11 @@ const App = () => {
       'favorites-background',
       'default-background',
       'add-recipe-background',
-      'spoon-background' // Προσθήκη της νέας κλάσης
+      'spoon-background'
     );
 
     if (location.pathname === '/spoon') {
-      body.classList.add('spoon-background'); // Χρήση της νέας κλάσης
+      body.classList.add('spoon-background');
     } else if (location.pathname === '/') {
       body.classList.add('home-background');
     } else if (location.pathname === '/About') {
@@ -44,7 +42,7 @@ const App = () => {
     } else if (location.pathname === '/contact') {
       body.classList.add('contact-background');
     } else if (location.pathname.startsWith('/recipes/')) {
-      body.classList.add('recipe-detail-background'); // Σταθερή κλάση για όλες τις συνταγές
+      body.classList.add('recipe-detail-background');
     } else if (location.pathname === '/profile') {
       body.classList.add('profile-background');
     } else if (location.pathname === '/favorites') {
@@ -58,7 +56,7 @@ const App = () => {
 
   return (
     <>
-      <Navbar onSearch={setSearchQuery} /> {/* Περνάμε το setSearchQuery στο Navbar */}
+      <Navbar onSearch={setSearchQuery} />
       <Routes>
         <Route
           path="/"
@@ -70,12 +68,12 @@ const App = () => {
           }
         />
         <Route path="/about" element={<About />} />
-        <Route path="/recipes" element={<Recipes searchQuery={searchQuery} />} /> {/* Περνάμε το searchQuery στο Recipes */}
-        <Route path="/recipes/:recipeId" element={<RecipeDetail />} /> {/* Δυναμική διαδρομή */}
+        <Route path="/recipes" element={<Recipes searchQuery={searchQuery} />} />
+        <Route path="/recipes/:recipeId" element={<RecipeDetail />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/profile" element={<Profile />} /> {/* Προφίλ χρήστη */}
-        <Route path="/favorites" element={<FavoritesPage />} /> {/* Αγαπημένα */}
-        <Route path="/add-recipe" element={<AddRecipe />} /> {/* Νέα διαδρομή για το AddRecipe */}
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/add-recipe" element={<AddRecipe />} />
       </Routes>
     </>
   );
@@ -83,7 +81,9 @@ const App = () => {
 
 const AppWrapper = () => (
   <Router>
-    <App />
+    <FavoritesProvider>
+      <App />
+    </FavoritesProvider>
   </Router>
 );
 

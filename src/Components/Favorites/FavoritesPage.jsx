@@ -1,77 +1,60 @@
 import React, { useEffect, useState } from 'react';
+import { useFavorites } from '../../Context/FavoritesContext';
 import './FavoritesPage.css';
 
 const FavoritesPage = () => {
+  const { favorites } = useFavorites();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token'); // Έλεγχος αν υπάρχει token
 
   useEffect(() => {
     if (!token) {
-      setLoading(false); // Σταματάμε το loading αν δεν υπάρχει token
+      setLoading(false); // Σταματάμε τη φόρτωση αν δεν υπάρχει token
       return;
     }
 
-    const fetchFavorites = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/favorites', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
+    const fetchFavoriteRecipes = async () => {
+      setLoading(true);
+      const recipePromises = favorites.map(async (id) => {
+        const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
         const data = await res.json();
+        const meal = data.meals?.[0];
 
-        if (data.success) {
-          const favoriteIds = data.favorites;
+        return meal
+          ? {
+              id: meal.idMeal,
+              title: meal.strMeal,
+              image: meal.strMealThumb,
+            }
+          : null;
+      });
 
-          const recipePromises = favoriteIds.map(async (id) => {
-            const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
-            const data = await res.json();
-            const meal = data.meals?.[0];
-
-            return meal
-              ? {
-                  id: meal.idMeal,
-                  title: meal.strMeal,
-                  image: meal.strMealThumb,
-                }
-              : null;
-          });
-
-          const resolved = await Promise.all(recipePromises);
-          const filtered = resolved.filter(Boolean);
-          setFavoriteRecipes(filtered);
-        } else {
-          alert('Error loading favorites');
-        }
-      } catch (err) {
-        console.error('Error fetching favorites:', err);
-        alert('Error connecting to the server');
-      } finally {
-        setLoading(false);
-      }
+      const resolved = await Promise.all(recipePromises);
+      setFavoriteRecipes(resolved.filter(Boolean));
+      setLoading(false);
     };
 
-    fetchFavorites();
-  }, [token]);
+    fetchFavoriteRecipes();
+  }, [favorites, token]);
 
   if (!token) {
+    // Επιστρέφουμε μήνυμα αν ο χρήστης δεν είναι συνδεδεμένος
     return (
       <div className="not-logged-in">
         <div className="overlay">
-          <p className="not-logged-in-message">Please log in to view your favorites.</p>
+          <p className="not-logged-in-message">Please log in to view your favorite recipes.</p>
         </div>
       </div>
     );
   }
 
   if (loading) {
+    // Επιστρέφουμε το spinner αν τα δεδομένα φορτώνονται
     return (
       <div className="spinner-container">
         <div className="spinner"></div>
-        <p className='loading-text'>Loading recipes...</p>
+        <p className="loading-text">Loading your favorite recipes...</p>
       </div>
     );
   }
@@ -79,9 +62,7 @@ const FavoritesPage = () => {
   return (
     <div className="favorites-container">
       <h1>Your Favorite Recipes</h1>
-      {favoriteRecipes.length === 0 ? (
-        <p>You have no favorite recipes yet.</p>
-      ) : (
+      {favoriteRecipes.length === 0 ? null : (
         <div className="card-grid">
           {favoriteRecipes.map((recipe) => (
             <div className="recipe-card" key={recipe.id}>

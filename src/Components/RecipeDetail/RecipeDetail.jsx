@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useFavorites } from '../../Context/FavoritesContext';
 import './RecipeDetail.css';
 
 const RecipeDetail = () => {
   const { recipeId } = useParams();
+  const { favorites, toggleFavorite } = useFavorites();
   const [recipe, setRecipe] = useState(null);
-  const [favorites, setFavorites] = useState([]);
   const [isUserRecipe, setIsUserRecipe] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const [userRating, setUserRating] = useState(null);
+  const token = localStorage.getItem('token');
+  const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null; // Decode user ID from token
 
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        // Αν είναι αριθμός 5ψηφιος → API, αλλιώς από backend
         if (/^\d{5,}$/.test(recipeId)) {
           const response = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
           const data = await response.json();
@@ -23,8 +27,7 @@ const RecipeDetail = () => {
               image: meal.strMealThumb,
               instructions: meal.strInstructions,
               ingredients: Array.from({ length: 20 }, (_, i) => meal[`strIngredient${i + 1}`]).filter(Boolean),
-              rating: 4,
-              cookTime: meal.strCookTime || 'N/A'
+              rating: 4
             });
             setIsUserRecipe(false);
           }
@@ -39,8 +42,7 @@ const RecipeDetail = () => {
               image: r.imageUrl,
               instructions: r.instructions,
               ingredients: r.ingredients, // assumed to be array
-              rating: r.rating || 4,
-              cookTime: r.cookTime || 'N/A'
+              rating: r.rating || 4
             });
             setIsUserRecipe(true);
           }
@@ -50,66 +52,59 @@ const RecipeDetail = () => {
       }
     };
 
-    const fetchFavorites = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
+    const fetchRatings = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/favorites', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
+        const res = await fetch(`http://localhost:5000/api/ratings/${recipeId}?userId=${userId || ''}`);
         const data = await res.json();
         if (data.success) {
-          setFavorites(data.favorites);
+          setAverageRating(data.averageRating);
+          if (userId) {
+            setUserRating(data.userRating);
+          }
         }
-      } catch (err) {
-        console.error('Error fetching favorites:', err);
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
       }
     };
 
     fetchRecipe();
-    fetchFavorites();
-  }, [recipeId]);
+    fetchRatings();
+  }, [recipeId, userId]);
 
-  const toggleFavorite = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const submitRating = async (rating) => {
+    if (!userId) return; // Μόνο συνδεδεμένοι χρήστες μπορούν να υποβάλουν αξιολόγηση
 
     try {
-      if (favorites.includes(recipeId)) {
-        await fetch('http://localhost:5000/api/favorites/rm', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ recipeId }),
-        });
-        setFavorites(favorites.filter(id => id !== recipeId));
-      } else {
-        await fetch('http://localhost:5000/api/favorites/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ recipeId }),
-        });
-        setFavorites([...favorites, recipeId]);
+      const res = await fetch('http://localhost:5000/api/ratings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, recipeId, rating }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setUserRating(rating);
+        const updatedRatings = await fetch(`http://localhost:5000/api/ratings/${recipeId}`);
+        const updatedData = await updatedRatings.json();
+        setAverageRating(updatedData.averageRating);
       }
     } catch (error) {
-      console.error('Error updating favorites:', error);
+      console.error('Error submitting rating:', error);
     }
   };
 
-  const renderStars = (rating) => {
-    const fullStars = '★'.repeat(Math.floor(rating));
-    const emptyStars = '☆'.repeat(5 - Math.floor(rating));
-    return fullStars + emptyStars;
+  const renderStars = (rating, onClick) => {
+    return [...Array(5)].map((_, index) => (
+      <span
+        key={index}
+        className={`star ${index < rating ? 'filled' : ''}`}
+        onClick={() => onClick && onClick(index + 1)}
+      >
+        ★
+      </span>
+    ));
   };
 
   if (!recipe) {
@@ -120,12 +115,20 @@ const RecipeDetail = () => {
     <div className="recipe-detail">
       <h1>{recipe.title}</h1>
       <img src={recipe.image} alt={recipe.title} className="recipe-image" />
-      
-      <div className="rating-stars">{renderStars(recipe.rating)}</div>
 
-      <div className="recipe-timer-favorite">
-        <div className="recipe-timer">⏱ {recipe.cookTime}</div>
-        <div className="favorite-icon" onClick={toggleFavorite}>
+      <div className="rating-section">
+        <div className="average-rating">
+          Average Rating: {renderStars(Math.round(averageRating))}
+        </div>
+        {userId && (
+          <div className="user-rating">
+            Your Rating: {renderStars(userRating || 0, submitRating)}
+          </div>
+        )}
+      </div>
+
+      <div className="rating-and-favorite">
+        <div className="favorite-icon" onClick={() => toggleFavorite(recipeId)}>
           {favorites.includes(recipeId) ? '❤️' : '🤍'}
         </div>
       </div>
