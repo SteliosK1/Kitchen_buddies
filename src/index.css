@@ -45,17 +45,12 @@
   background-repeat: no-repeat;
   min-height: 100vh;
 }
-
-.recipe-detail-1-background {
-  background-color: #090505db;
-}
-
-.recipe-detail-2-background {
-  background-color: #090505db;
-}
-
-.recipe-detail-3-background {
-  background-color: #090505db;
+.recipe-detail-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/photo4.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
 }
 
 .profile-background {
@@ -71,8 +66,23 @@
   background-color: #6d1414; 
 }
 
-/* ...existing code... */
+.add-recipe-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/add_recipes.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+}
 
+.favorites-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/spoon.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+}
 /* Media Queries */
 
 /* Για tablet (πλάτος οθόνης έως 768px) */

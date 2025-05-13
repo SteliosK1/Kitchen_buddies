@@ -116,3 +116,18 @@
   font-size: 1.5rem;
   color: #e57e26;
 }
+
+.add-recipe-button {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background-color: #8cabab;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.add-recipe-button:hover {
+  background-color: #7a7a7a;
+}

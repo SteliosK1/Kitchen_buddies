@@ -11,6 +11,7 @@ import Contact from './Components/Contact/Contact';
 import AuthContainer from './Components/AuthContainer/AuthContainer';
 import Profile from './Components/Profile/Profile';
 import FavoritesPage from './Components/Favorites/FavoritesPage';
+import AddRecipe from './Components/AddRecipe/AddRecipe'; // Πρόσθεσε την εισαγωγή του AddRecipe
 
 const App = () => {
   const location = useLocation();
@@ -18,8 +19,6 @@ const App = () => {
 
   useEffect(() => {
     const body = document.body;
-    const token = localStorage.getItem('token');
-
 
     // Clear all background classes before adding the correct one
     body.classList.remove(
@@ -27,12 +26,16 @@ const App = () => {
       'about-background',
       'recipes-background',
       'contact-background',
-      'recipe-detail-1-background',
       'profile-background',
-      'default-background'
+      'favorites-background',
+      'default-background',
+      'add-recipe-background',
+      'spoon-background' // Προσθήκη της νέας κλάσης
     );
 
-    if (location.pathname === '/') {
+    if (location.pathname === '/spoon') {
+      body.classList.add('spoon-background'); // Χρήση της νέας κλάσης
+    } else if (location.pathname === '/') {
       body.classList.add('home-background');
     } else if (location.pathname === '/About') {
       body.classList.add('about-background');
@@ -41,19 +44,17 @@ const App = () => {
     } else if (location.pathname === '/contact') {
       body.classList.add('contact-background');
     } else if (location.pathname.startsWith('/recipes/')) {
-      const recipeId = location.pathname.split('/recipes/')[1];
-      body.classList.add(`recipe-detail-${recipeId}-background`);
+      body.classList.add('recipe-detail-background'); // Σταθερή κλάση για όλες τις συνταγές
     } else if (location.pathname === '/profile') {
-      body.classList.add('profile-background'); // Add profile background
+      body.classList.add('profile-background');
     } else if (location.pathname === '/favorites') {
-      body.classList.add('favorites-background'); // Add favorites background
+      body.classList.add('favorites-background');
+    } else if (location.pathname === '/add-recipe') {
+      body.classList.add('add-recipe-background');
     } else {
       body.classList.add('default-background');
     }
   }, [location]);
-
-
-
 
   return (
     <>
@@ -74,6 +75,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<Profile />} /> {/* Προφίλ χρήστη */}
         <Route path="/favorites" element={<FavoritesPage />} /> {/* Αγαπημένα */}
+        <Route path="/add-recipe" element={<AddRecipe />} /> {/* Νέα διαδρομή για το AddRecipe */}
       </Routes>
     </>
   );

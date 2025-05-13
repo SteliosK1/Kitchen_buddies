@@ -11,6 +11,7 @@
   padding: 2rem;
   max-width: 1200px;
   margin: auto;
+  color: #bdbdbd;
 }
 
 .card-grid {
@@ -62,5 +63,26 @@
 
 .view-button:hover {
   background-color: #d26517;
+}
+
+.not-logged-in {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.6); /* Σκοτεινό overlay */
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.not-logged-in-message {
+  font-size: 1.5rem;
+  color: white;
 }
 

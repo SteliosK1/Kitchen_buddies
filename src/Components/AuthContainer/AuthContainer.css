@@ -18,3 +18,12 @@
 .toggle-button:hover {
   background-color: #6b8f8f;
 }
+.user-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%; /* Κυκλική εικόνα */
+  object-fit: cover;
+  border: 2px solid #8cabab;
+  margin-bottom: 10px;
+   margin-left: 30%; /* Μετακινεί την εικόνα λίγο δεξιά */
+}

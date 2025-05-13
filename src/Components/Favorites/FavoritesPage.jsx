@@ -4,13 +4,11 @@ import './FavoritesPage.css';
 const FavoritesPage = () => {
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
     if (!token) {
-      alert('Πρέπει να συνδεθείτε για να δείτε τα αγαπημένα σας!');
-      window.location.href = '/';
+      setLoading(false); // Σταματάμε το loading αν δεν υπάρχει token
       return;
     }
 
@@ -46,28 +44,43 @@ const FavoritesPage = () => {
           const filtered = resolved.filter(Boolean);
           setFavoriteRecipes(filtered);
         } else {
-          alert('Σφάλμα κατά τη φόρτωση των αγαπημένων');
+          alert('Error loading favorites');
         }
       } catch (err) {
         console.error('Error fetching favorites:', err);
-        alert('Σφάλμα σύνδεσης με τον διακομιστή');
+        alert('Error connecting to the server');
       } finally {
         setLoading(false);
       }
     };
 
     fetchFavorites();
-  }, []);
+  }, [token]);
+
+  if (!token) {
+    return (
+      <div className="not-logged-in">
+        <div className="overlay">
+          <p className="not-logged-in-message">Please log in to view your favorites.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
-    return <p>Φόρτωση αγαπημένων...</p>;
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p className='loading-text'>Loading recipes...</p>
+      </div>
+    );
   }
 
   return (
     <div className="favorites-container">
-      <h1>Οι αγαπημένες σας συνταγές</h1>
+      <h1>Your Favorite Recipes</h1>
       {favoriteRecipes.length === 0 ? (
-        <p>Δεν έχετε αγαπημένες συνταγές ακόμα.</p>
+        <p>You have no favorite recipes yet.</p>
       ) : (
         <div className="card-grid">
           {favoriteRecipes.map((recipe) => (
@@ -76,7 +89,7 @@ const FavoritesPage = () => {
               <div className="recipe-info">
                 <h3>{recipe.title}</h3>
                 <a href={`/recipes/${recipe.id}`} className="view-button">
-                  Προβολή συνταγής
+                  View Recipe
                 </a>
               </div>
             </div>

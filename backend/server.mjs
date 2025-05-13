@@ -81,7 +81,18 @@ app.post('/api/login', async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        res.json({ success: true, token, user: { id: user.id, fullname: user.fullname, email: user.email } });
+        res.json({
+            success: true,
+            token,
+            user: {
+                id: user.id,
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone || '',
+                address: user.address || '',
+                bio: user.bio || '',
+            },
+        });
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -90,8 +101,8 @@ app.post('/api/login', async (req, res) => {
 
 // Ενημέρωση προφίλ χρήστη
 app.put('/api/update-profile', async (req, res) => {
-    const { fullname, email } = req.body;
-    const token = req.headers.authorization?.split(' ')[1]; // Παίρνουμε το token από το Authorization header
+    const { fullname, email, phone, address, bio } = req.body;
+    const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ success: false, message: 'Δεν βρέθηκε το token. Παρακαλώ συνδεθείτε.' });
@@ -103,8 +114,8 @@ app.put('/api/update-profile', async (req, res) => {
 
         // Ενημέρωση των στοιχείων του χρήστη στη βάση
         const [result] = await db.execute(
-            'UPDATE users SET fullname = ?, email = ? WHERE id = ?',
-            [fullname, email, userId]
+            'UPDATE users SET fullname = ?, email = ?, phone = ?, address = ?, bio = ? WHERE id = ?',
+            [fullname, email, phone, address, bio, userId]
         );
 
         if (result.affectedRows > 0) {
@@ -172,6 +183,62 @@ app.delete('/api/favorites/rm', async (req, res) => {
     }
 });
 
+// Αφαίρεσε αυτή τη διαδρομή αν δεν χρησιμοποιείται
+app.post('/api/user-recipes/add', async (req, res) => {
+  try {
+    res.status(201).json({ success: true, message: 'Recipe created' });
+  } catch (error) {
+    console.error('Error adding recipe:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.post('/api/user-recipes', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.id;
+
+    const { title, imageUrl, instructions, ingredients, cookTime, rating } = req.body;
+
+    // Εισαγωγή της συνταγής στη βάση δεδομένων
+    await db.execute(
+      'INSERT INTO user_recipes (user_id, title, image, instructions, ingredients, cook_time, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [userId, title, imageUrl, instructions, JSON.stringify(ingredients), cookTime, rating]
+    );
+
+    res.status(201).json({ success: true, message: 'Recipe added successfully!' });
+  } catch (error) {
+    console.error('Error adding recipe:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/user-recipes', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM user_recipes');
+    res.json({ success: true, recipes: rows });
+  } catch (error) {
+    console.error('Error getting user recipes:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/user-recipes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.execute('SELECT * FROM user_recipes WHERE id = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Recipe not found' });
+    res.json({ success: true, recipe: rows[0] });
+  } catch (error) {
+    console.error('Error getting user recipe:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 
 // Εκκίνηση διακομιστή
