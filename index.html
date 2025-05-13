@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="https://fonts.gstatic.com/s/i/materialicons/restaurant/v14/24px.svg" type="image/svg+xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitchen Buddies!
+    </title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script>
+    const observer = new MutationObserver(() => {
+      const className = document.body.className;
+      const match = className.match(/^recipe-detail-\d+-background$/);
+
+      if (match) {
+        document.body.className = 'recipe-detail-1-background ';
+        observer.disconnect(); // σταμάτα την παρακολούθηση
+      }
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+  </script>
+
+  </body>
+</html>

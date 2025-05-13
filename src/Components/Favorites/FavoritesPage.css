@@ -1,0 +1,117 @@
+.show {
+  text-decoration: none;
+  color: black;
+}
+
+.recipe-detail{
+  background-color: #ffffffdb;
+}
+
+.favorites-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: auto;
+  color: #bdbdbd;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 2rem;
+}
+
+.recipe-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+}
+
+.recipe-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.recipe-info {
+  padding: 1rem;
+  text-align: center;
+}
+
+.recipe-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.view-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #e57e26;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.view-button:hover {
+  background-color: #d26517;
+}
+
+.not-logged-in {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.6); /* Σκοτεινό overlay */
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.not-logged-in-message {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #e57e26;
+  animation: spin 1s ease infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #555;
+}
+

@@ -1,0 +1,78 @@
+.hero{
+    width: 1200px;
+    height: auto;
+    margin: auto;
+    color: #ececec;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+}
+.hero h1{
+    font-family: 'Times New Roman';
+    font-size: 50px;
+    padding-left: 20px;
+    margin-top: 9%;
+    letter-spacing: 2px;
+    transition: all 0.3s ease-in-out;
+}
+.hero .par{
+    padding-left: 20px;
+    padding-bottom: 25px;
+    font-family: Arial;
+    letter-spacing: 1.2px;
+    line-height: 30px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Media Queries */
+
+/* Για tablet (πλάτος οθόνης έως 768px) */
+@media (max-width: 768px) {
+    .hero {
+        width: 90%; /* Μείωση πλάτους */
+        margin: auto;
+    }
+
+    .hero h1 {
+        font-size: 40px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+
+    .hero .par {
+        font-size: 16px; /* Μείωση μεγέθους γραμματοσειράς */
+        line-height: 25px; /* Μείωση ύψους γραμμής */
+    }
+
+    .hero .cn {
+        width: 140px; /* Μείωση πλάτους κουμπιού */
+        font-size: 16px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+
+    .hero span {
+        font-size: 50px; /* Μείωση μεγέθους γραμματοσειράς */
+    }
+}
+
+/* Για κινητά (πλάτος οθόνης έως 480px) */
+@media (max-width: 480px) {
+    .hero {
+        width: 95%; /* Ακόμα μικρότερο πλάτος */
+        margin: auto;
+    }
+
+    .hero h1 {
+        font-size: 30px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+
+    .hero .par {
+        font-size: 14px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+        line-height: 20px; /* Ακόμα μικρότερο ύψος γραμμής */
+    }
+
+    .hero .cn {
+        width: 120px; /* Ακόμα μικρότερο πλάτος κουμπιού */
+        font-size: 14px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+
+    .hero span {
+        font-size: 40px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
+    }
+}  

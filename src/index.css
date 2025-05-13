@@ -1,0 +1,114 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+#root{
+  max-width:1200px;
+  margin: auto;
+  position: relative;
+}
+.home-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo1.jpg');
+  background-position: center 45%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.about-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo2.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+.recipes-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo4.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+.contact-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo7.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.favorites-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo5.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+.recipe-detail-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/photo4.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.profile-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/stel.avif');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+}
+
+.default-background {
+  background-color: #6d1414; 
+}
+
+.add-recipe-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/add_recipes.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+}
+
+.favorites-background {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.5) 50%), url('/spoon.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  backdrop-filter: blur(4px);
+}
+/* Media Queries */
+
+/* Για tablet (πλάτος οθόνης έως 768px) */
+@media (max-width: 768px) {
+  .home-background, 
+  .about-background, 
+  .recipes-background, 
+  .contact-background {
+    background-position: center;
+    background-size: contain; /* Προσαρμογή μεγέθους */
+    min-height: 80vh; /* Μείωση ύψους */
+  }
+}
+
+/* Για κινητά (πλάτος οθόνης έως 480px) */
+@media (max-width: 480px) {
+  .home-background, 
+  .about-background, 
+  .recipes-background, 
+  .contact-background {
+    background-position: top;
+    background-size: cover;
+    min-height: 60vh; /* Ακόμα μικρότερο ύψος */
+  }
+
+  .default-background {
+    background-color: #e0e0e0; /* Ελαφρώς διαφορετικό χρώμα */
+  }
+}

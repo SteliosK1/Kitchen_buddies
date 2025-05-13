@@ -1,0 +1,133 @@
+.recipes-content {
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.recipes-content h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #e57e26;
+}
+
+.intro-paragraph {
+    font-size: 1.2em;
+    color: #e0d9d9;
+    margin-bottom: 40px;
+}
+
+.recipe-cards {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+.recipe-card {
+    background-color: #fff;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.recipe-card:hover {
+    transform: scale(1.05);
+}
+
+.recipe-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.recipe-info {
+    padding: 20px;
+}
+
+.recipe-info h3 {
+    font-size: 1.6em;
+    margin-bottom: 10px;
+}
+
+.recipe-description {
+    font-size: 1.1em;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+.recipe-button {
+    padding: 10px 20px;
+    background-color: #f4a261;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.recipe-button:hover {
+    background-color: #e76f51;
+}
+
+.favorite-icons {
+  position: absolute;
+  right: 0%;
+  font-size: 1.5em;
+  color: #e57e26;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 2; /* Για να βγαίνει πάνω από την εικόνα */
+  
+}
+
+.favorite-icons:hover {
+  transform: scale(1.2);
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  text-align: center;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #e57e26;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 1.5rem;
+  color: #e57e26;
+}
+
+.add-recipe-button {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background-color: #8cabab;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.add-recipe-button:hover {
+  background-color: #7a7a7a;
+}

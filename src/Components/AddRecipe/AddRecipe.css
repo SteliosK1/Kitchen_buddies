@@ -1,0 +1,63 @@
+.add-recipe-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.add-recipe-container h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.add-recipe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-recipe-form input,
+.add-recipe-form textarea {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border 0.3s ease;
+}
+
+.add-recipe-form input:focus,
+.add-recipe-form textarea:focus {
+  border-color: #28a745;
+  outline: none;
+}
+
+.add-recipe-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.add-recipe-button {
+  padding: 12px;
+  background-color: #8cabab;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-recipe-button:hover {
+  background-color: #616a6a;
+}
+
+.success-message {
+  margin-top: 20px;
+  text-align: center;
+  color: #28a745;
+  font-weight: bold;}
