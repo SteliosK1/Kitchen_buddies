@@ -7,8 +7,6 @@ const AddRecipe = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [instructions, setInstructions] = useState('');
   const [ingredients, setIngredients] = useState(['']);
-  const [cookTime, setCookTime] = useState('');
-  const [rating, setRating] = useState(3);
 
   const navigate = useNavigate();
 
@@ -36,8 +34,6 @@ const AddRecipe = () => {
       imageUrl,
       instructions,
       ingredients: ingredients.filter(ing => ing.trim() !== ''),
-      cookTime,
-      rating,
     };
 
     try {
@@ -51,7 +47,7 @@ const AddRecipe = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text(); // Αντί για JSON, διάβασε το κείμενο
+        const errorText = await response.text();
         console.error('Server error:', errorText);
         alert('Failed to add recipe.');
         return;
@@ -61,7 +57,7 @@ const AddRecipe = () => {
 
       if (data.success) {
         alert('Recipe added successfully!');
-        navigate('/recipes'); // επιστροφή στις συνταγές
+        navigate('/recipes');
       } else {
         alert('Failed to add recipe.');
       }
@@ -97,23 +93,6 @@ const AddRecipe = () => {
         <button type="button" onClick={addIngredientField}>
           + Add Ingredient
         </button>
-
-        <label>Cook Time:</label>
-        <input
-          type="text"
-          value={cookTime}
-          onChange={(e) => setCookTime(e.target.value)}
-          placeholder="e.g., 30 minutes"
-        />
-
-        <label>Rating (1–5):</label>
-        <input
-          type="number"
-          min="1"
-          max="5"
-          value={rating}
-          onChange={(e) => setRating(parseInt(e.target.value))}
-        />
 
         <button type="submit">Submit Recipe</button>
       </form>

@@ -3,6 +3,48 @@ import { Link } from 'react-router-dom';
 import { useFavorites } from '../../Context/FavoritesContext';
 import './Recipes.css';
 
+const Leaderboard = () => {
+  const [topRecipes, setTopRecipes] = useState([]);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/leaderboard');
+        const data = await res.json();
+        if (data.success) setTopRecipes(data.leaderboard);
+      } catch (err) {
+        console.error('Error fetching leaderboard:', err);
+      }
+    };
+    fetchLeaderboard();
+  }, []);
+
+  if (!topRecipes.length) return (
+    <div className="leaderboard">
+      <h3>⭐ Top 10 Recipes</h3>
+      <div style={{color:'#aaa'}}>No ratings yet.</div>
+    </div>
+  );
+
+  return (
+    <div className="leaderboard">
+      <h3>⭐ Top 10 Recipes</h3>
+      <ol>
+        {topRecipes.map((r, idx) => (
+          <li key={r.id} className="leaderboard-item">
+            {r.image
+              ? <img src={r.image} alt={r.title} className="leaderboard-img" />
+              : <div className="leaderboard-img placeholder-img">?</div>
+            }
+            <span className="leaderboard-title">{r.title}</span>
+            <span className="leaderboard-rating">{r.avgRating.toFixed(2)} ★</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
 const Recipes = ({ searchQuery }) => {
   const [randomRecipes, setRandomRecipes] = useState([]);
   const [userRecipes, setUserRecipes] = useState([]);
@@ -39,9 +81,9 @@ const Recipes = ({ searchQuery }) => {
         const data = await res.json();
         if (data.success) {
           const formatted = data.recipes.map((recipe) => ({
-            id: recipe.id.toString(), // string για συμβατότητα με API ids
+            id: `u_${recipe.id}`,
             title: recipe.title,
-            image: recipe.imageUrl,
+            image: recipe.image || recipe.image_url || '',
             description: recipe.instructions.substring(0, 100) + '...',
             isUser: true,
           }));
@@ -83,7 +125,10 @@ const Recipes = ({ searchQuery }) => {
         We keep it easy and fun to cook with minimal ingredients!
       </p>
 
-      <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link> {/* Νέο κουμπί */}
+      <div className="recipes-header">
+        <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link>
+        <Leaderboard />
+      </div>
 
       <div className="recipe-cards">
         {filteredRecipes.map((recipe) => (

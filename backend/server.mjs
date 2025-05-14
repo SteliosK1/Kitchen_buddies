@@ -178,7 +178,14 @@ app.get('/api/favorites', async (req, res) => {
 
 app.post('/api/favorites/add', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const { recipeId } = req.body;
+    let recipeId = req.body.recipeId || req.params.recipeId;
+    if (/^\d+$/.test(recipeId)) {
+        // external recipe, κράτα ως έχει
+    } else if (recipeId.startsWith('u_')) {
+        // user recipe, κράτα το prefix
+    } else {
+        // handle error
+    }
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
 
     try {
@@ -194,7 +201,14 @@ app.post('/api/favorites/add', async (req, res) => {
 
 app.delete('/api/favorites/rm', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
-    const { recipeId } = req.body;
+    let recipeId = req.body.recipeId || req.params.recipeId;
+    if (/^\d+$/.test(recipeId)) {
+        // external recipe, κράτα ως έχει
+    } else if (recipeId.startsWith('u_')) {
+        // user recipe, κράτα το prefix
+    } else {
+        // handle error
+    }
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
 
     try {
@@ -217,13 +231,18 @@ app.post('/api/user-recipes', async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.id;
 
-        const { title, imageUrl, instructions, ingredients, cookTime, rating } = req.body;
-        await db.execute(
-            'INSERT INTO user_recipes (user_id, title, image, instructions, ingredients, cook_time, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [userId, title, imageUrl, instructions, JSON.stringify(ingredients), cookTime, rating]
+        const { title, imageUrl, instructions, ingredients } = req.body;
+        const [result] = await db.execute(
+            'INSERT INTO user_recipes (user_id, title, image_url, instructions, ingredients) VALUES (?, ?, ?, ?, ?)',
+            [userId, title, imageUrl, instructions, JSON.stringify(ingredients)]
         );
 
-        res.status(201).json({ success: true, message: 'Recipe added successfully!' });
+        // Επιστροφή id με prefix
+        res.status(201).json({ 
+            success: true, 
+            message: 'Recipe added successfully!',
+            id: `u_${result.insertId}`
+        });
     } catch (error) {
         console.error('Error adding recipe:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -241,20 +260,34 @@ app.get('/api/user-recipes', async (req, res) => {
 });
 
 app.get('/api/user-recipes/:id', async (req, res) => {
-    const { id } = req.params;
+    let { id } = req.params;
+    if (id.startsWith('u_')) {
+        id = id.slice(2); // Αφαίρεσε το "u_"
+    }
     try {
         const [rows] = await db.execute('SELECT * FROM user_recipes WHERE id = ?', [id]);
-        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Recipe not found' });
-        res.json({ success: true, recipe: rows[0] });
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Recipe not found' });
+        }
+        const recipe = rows[0];
+        res.json({ success: true, recipe });
     } catch (error) {
-        console.error('Error getting user recipe:', error);
+        console.error('Error fetching user recipe:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
 // Ratings με υποστήριξη API συνταγών
 app.post('/api/ratings', async (req, res) => {
-    let { userId, recipeId, rating } = req.body;
+    let recipeId = req.body.recipeId || req.params.recipeId;
+    if (/^\d+$/.test(recipeId)) {
+        // external recipe, κράτα ως έχει
+    } else if (recipeId.startsWith('u_')) {
+        // user recipe, κράτα το prefix
+    } else {
+        // handle error
+    }
+    let { userId, rating } = req.body;
     userId = Number(userId);
     rating = Number(rating);
     if (!userId || !recipeId || isNaN(rating) || rating < 1 || rating > 5) {
@@ -290,13 +323,20 @@ app.post('/api/ratings', async (req, res) => {
 });
 
 app.get('/api/ratings/:recipeId', async (req, res) => {
-    const { recipeId } = req.params;
+    let recipeId = req.params.recipeId;
+    if (/^\d+$/.test(recipeId)) {
+        // external recipe, κράτα ως έχει
+    } else if (recipeId.startsWith('u_')) {
+        // user recipe, κράτα το prefix
+    } else {
+        // handle error
+    }
     const { userId } = req.query;
     try {
         // Average rating
         const [rows] = await db.execute(
             'SELECT AVG(rating) as avgRating FROM ratings WHERE recipe_id = ?',
-            [recipeId]
+            [recipeId] // όπου recipeId είναι π.χ. "u_123" ή "52772"
         );
         let userRating = null;
         if (userId) {
@@ -321,6 +361,65 @@ app.get('/api/ratings/:recipeId', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Database error.' });
+    }
+});
+
+app.get('/api/leaderboard', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT 
+                recipe_id, 
+                AVG(rating) as avgRating, 
+                COUNT(*) as ratingsCount
+            FROM ratings
+            GROUP BY recipe_id
+            HAVING ratingsCount > 0
+            ORDER BY avgRating DESC, ratingsCount DESC
+            LIMIT 10
+        `);
+
+        // Χρησιμοποίησε Promise.all για να περιμένεις όλα τα async fetches
+        const leaderboard = await Promise.all(rows.map(async (row) => {
+            let title = '';
+            let image = '';
+            const recipeIdStr = String(row.recipe_id);
+            if (recipeIdStr.startsWith('u_')) {
+                const id = recipeIdStr.slice(2);
+                const [userRows] = await db.execute('SELECT title, image_url as image FROM user_recipes WHERE id = ?', [id]);
+                if (userRows.length > 0) {
+                    title = userRows[0].title;
+                    image = userRows[0].image;
+                }
+            } else {
+                // Δοκίμασε να βρεις στη βάση
+                const [extRows] = await db.execute('SELECT title, image_url as image FROM external_recipes WHERE id = ?', [recipeIdStr]);
+                if (extRows.length > 0) {
+                    title = extRows[0].title;
+                    image = extRows[0].image;
+                } else {
+                    // Φέρε από το API αν δεν υπάρχει στη βάση
+                    const apiRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeIdStr}`);
+                    const apiData = await apiRes.json();
+                    if (apiData.meals && apiData.meals.length > 0) {
+                        title = apiData.meals[0].strMeal;
+                        image = apiData.meals[0].strMealThumb;
+                    }
+                }
+            }
+            return {
+                id: recipeIdStr,
+                title,
+                image,
+                avgRating: Number(row.avgRating),
+                ratingsCount: row.ratingsCount
+            };
+        }));
+
+        const filteredLeaderboard = leaderboard.filter(item => item.title && item.title.trim() !== '');
+        res.json({ success: true, leaderboard: filteredLeaderboard });
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 

@@ -131,3 +131,76 @@
 .add-recipe-button:hover {
   background-color: #7a7a7a;
 }
+
+.recipes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 40px;
+}
+
+.leaderboard {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 18px 24px;
+  min-width: 260px;
+  max-width: 320px;
+  text-align: left;
+}
+
+.leaderboard h3 {
+  margin-top: 0;
+  color: #e57e26;
+  font-size: 1.3em;
+  margin-bottom: 12px;
+}
+
+.leaderboard ol {
+  list-style: decimal inside;
+  padding: 0;
+  margin: 0;
+}
+
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+.leaderboard-img {
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 8px;
+  border: 1px solid #eee;
+}
+
+.leaderboard-img.placeholder-img {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eee;
+  color: #aaa;
+  border-radius: 6px;
+  font-size: 1.5em;
+  border: 1px solid #eee;
+}
+
+.leaderboard-title {
+  flex: 1;
+  font-weight: 500;
+  color: #444;
+  font-size: 1em;
+}
+
+.leaderboard-rating {
+  color: #e57e26;
+  font-weight: bold;
+  margin-left: 8px;
+}
