@@ -33,8 +33,8 @@ const Profile = () => {
   };
 
   const handleSaveClick = async () => {
-    if (!/^\d{10}$/.test(formData.phone)) {
-      alert('The phone must contain exactly 10 numbers.');
+    if (formData.phone && !/^\d{0,10}$/.test(formData.phone)) {
+      alert('The phone must contain only up to 10 numbers.');
       return;
     }
 
@@ -135,7 +135,7 @@ const Profile = () => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Email"
+              placeholder="Email Address"
               required
               title="Please enter a valid email"
             />
@@ -146,10 +146,8 @@ const Profile = () => {
               name="phone"
               value={formData.phone || ''}
               onChange={handleInputChange}
-              placeholder="Phone Number"
+              placeholder="Phone Number (up to 10 digits)"
               maxLength="10"
-              pattern="\d{10}"
-              title="The phone number must contain exactly 10 digits"
             />
 
             <input
@@ -161,7 +159,8 @@ const Profile = () => {
               placeholder="Address"
             />
 
-            <textarea
+            <input
+              type="text"
               id="bio"
               name="bio"
               value={formData.bio || ''}
@@ -169,9 +168,11 @@ const Profile = () => {
               placeholder="Write something about yourself"
             />
 
-            <button onClick={handleSaveClick} className="save-button">
-              Save
-            </button>
+            <div style={{ marginTop: '20px' }}>
+              <button onClick={handleSaveClick} className="save-button">
+                Save
+              </button>
+            </div>
           </div>
         ) : (
           <div className="profile-details">

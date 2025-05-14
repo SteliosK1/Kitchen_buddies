@@ -10,8 +10,9 @@ const RecipeDetail = () => {
   const [isUserRecipe, setIsUserRecipe] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(null);
+  const [hoveredStar, setHoveredStar] = useState(null);
   const token = localStorage.getItem('token');
-  const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null; // Decode user ID from token
+  const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -41,7 +42,7 @@ const RecipeDetail = () => {
               title: r.title,
               image: r.imageUrl,
               instructions: r.instructions,
-              ingredients: r.ingredients, // assumed to be array
+              ingredients: r.ingredients,
               rating: r.rating || 4
             });
             setIsUserRecipe(true);
@@ -57,10 +58,8 @@ const RecipeDetail = () => {
         const res = await fetch(`http://localhost:5000/api/ratings/${recipeId}?userId=${userId || ''}`);
         const data = await res.json();
         if (data.success) {
-          setAverageRating(data.averageRating);
-          if (userId) {
-            setUserRating(data.userRating);
-          }
+          setAverageRating(data.averageRating || 0);
+          setUserRating(data.userRating); // μπορεί να είναι null
         }
       } catch (error) {
         console.error('Error fetching ratings:', error);
@@ -72,7 +71,7 @@ const RecipeDetail = () => {
   }, [recipeId, userId]);
 
   const submitRating = async (rating) => {
-    if (!userId) return; // Μόνο συνδεδεμένοι χρήστες μπορούν να υποβάλουν αξιολόγηση
+    if (!userId) return;
 
     try {
       const res = await fetch('http://localhost:5000/api/ratings', {
@@ -84,23 +83,32 @@ const RecipeDetail = () => {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (data.message === 'Rating saved!') {
+        const prevUserRating = userRating;
         setUserRating(rating);
-        const updatedRatings = await fetch(`http://localhost:5000/api/ratings/${recipeId}`);
-        const updatedData = await updatedRatings.json();
-        setAverageRating(updatedData.averageRating);
+
+        // Ενημέρωση τοπικού μέσου όρου (προαιρετικά βελτιωμένο)
+        if (prevUserRating === null) {
+          setAverageRating((prev) => (prev * 5 + rating) / 6); // approximation
+        } else {
+          setAverageRating((prev) => prev + (rating - prevUserRating) / 5);
+        }
       }
     } catch (error) {
       console.error('Error submitting rating:', error);
     }
   };
 
-  const renderStars = (rating, onClick) => {
+  const renderStars = (rating, onClick, hoverValue) => {
+    const displayRating = hoverValue !== null ? hoverValue : rating;
     return [...Array(5)].map((_, index) => (
       <span
         key={index}
-        className={`star ${index < rating ? 'filled' : ''}`}
+        className={`star ${index < displayRating ? 'filled' : ''}`}
+        onMouseEnter={() => onClick && setHoveredStar(index + 1)}
+        onMouseLeave={() => onClick && setHoveredStar(null)}
         onClick={() => onClick && onClick(index + 1)}
+        style={{ cursor: onClick ? 'pointer' : 'default' }}
       >
         ★
       </span>
@@ -108,7 +116,12 @@ const RecipeDetail = () => {
   };
 
   if (!recipe) {
-    return <h2>Loading recipe...</h2>;
+    return (
+      <div className="spinner-container">
+        <div className="spinner"></div>
+        <p className='loading-text'>Loading recipes...</p>
+      </div>
+    );
   }
 
   return (
@@ -122,7 +135,7 @@ const RecipeDetail = () => {
         </div>
         {userId && (
           <div className="user-rating">
-            Your Rating: {renderStars(userRating || 0, submitRating)}
+            Your Rating: {renderStars(userRating || 0, submitRating, hoveredStar)}
           </div>
         )}
       </div>
