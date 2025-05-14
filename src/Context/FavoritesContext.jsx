@@ -6,27 +6,27 @@ export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const token = localStorage.getItem('token');
 
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!token) return;
+  const fetchFavorites = async () => {
+    if (!token) return;
 
-      try {
-        const res = await fetch('http://localhost:5000/api/favorites', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    try {
+      const res = await fetch('http://localhost:5000/api/favorites', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const data = await res.json();
-        if (data.success) {
-          setFavorites(data.favorites);
-        }
-      } catch (err) {
-        console.error('Error fetching favorites:', err);
+      const data = await res.json();
+      if (data.success) {
+        setFavorites(data.favorites.map(String)); // Βεβαιώσου ότι είναι strings
       }
-    };
+    } catch (err) {
+      console.error('Error fetching favorites:', err);
+    }
+  };
 
+  useEffect(() => {
     fetchFavorites();
   }, [token]);
 
@@ -43,7 +43,6 @@ export const FavoritesProvider = ({ children }) => {
           },
           body: JSON.stringify({ recipeId }),
         });
-        setFavorites(favorites.filter((id) => id !== recipeId));
       } else {
         await fetch('http://localhost:5000/api/favorites/add', {
           method: 'POST',
@@ -53,8 +52,9 @@ export const FavoritesProvider = ({ children }) => {
           },
           body: JSON.stringify({ recipeId }),
         });
-        setFavorites([...favorites, recipeId]);
       }
+      // Πάντα refetch μετά από αλλαγή
+      await fetchFavorites();
     } catch (error) {
       console.error('Error updating favorites:', error);
     }

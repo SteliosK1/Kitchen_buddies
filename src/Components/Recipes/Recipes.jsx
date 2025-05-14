@@ -88,8 +88,8 @@ const Recipes = ({ searchQuery }) => {
       <div className="recipe-cards">
         {filteredRecipes.map((recipe) => (
           <div className="recipe-card" key={recipe.id}>
-            <div className="favorite-icons" onClick={() => toggleFavorite(recipe.id)}>
-              {favorites.includes(recipe.id) ? '❤️' : '🤍'}
+            <div className="favorite-icons" onClick={() => toggleFavorite(String(recipe.id))}>
+              {favorites.includes(String(recipe.id)) ? '❤️' : '🤍'}
             </div>
             <img src={recipe.image} alt={recipe.title} className="recipe-image" />
             <div className="recipe-info">

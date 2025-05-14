@@ -128,8 +128,8 @@ const RecipeDetail = () => {
       </div>
 
       <div className="rating-and-favorite">
-        <div className="favorite-icon" onClick={() => toggleFavorite(recipeId)}>
-          {favorites.includes(recipeId) ? '❤️' : '🤍'}
+        <div className="favorite-icon" onClick={() => toggleFavorite(String(recipe.id))}>
+          {favorites.includes(String(recipe.id)) ? '❤️' : '🤍'}
         </div>
       </div>
 
