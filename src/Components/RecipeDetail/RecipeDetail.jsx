@@ -58,7 +58,7 @@ const RecipeDetail = () => {
         const res = await fetch(`http://localhost:5000/api/ratings/${recipeId}?userId=${userId || ''}`);
         const data = await res.json();
         if (data.success) {
-          setAverageRating(data.averageRating || 0);
+          setAverageRating(Number(data.averageRating) || 0);
           setUserRating(data.userRating); // μπορεί να είναι null
         }
       } catch (error) {
@@ -84,14 +84,12 @@ const RecipeDetail = () => {
 
       const data = await res.json();
       if (data.message === 'Rating saved!') {
-        const prevUserRating = userRating;
         setUserRating(rating);
-
-        // Ενημέρωση τοπικού μέσου όρου (προαιρετικά βελτιωμένο)
-        if (prevUserRating === null) {
-          setAverageRating((prev) => (prev * 5 + rating) / 6); // approximation
-        } else {
-          setAverageRating((prev) => prev + (rating - prevUserRating) / 5);
+        // Φέρε ξανά το average από το backend
+        const ratingsRes = await fetch(`http://localhost:5000/api/ratings/${recipeId}?userId=${userId}`);
+        const ratingsData = await ratingsRes.json();
+        if (ratingsData.success) {
+          setAverageRating(Number(ratingsData.averageRating) || 0);
         }
       }
     } catch (error) {
@@ -124,6 +122,8 @@ const RecipeDetail = () => {
     );
   }
 
+  console.log('averageRating:', averageRating);
+
   return (
     <div className="recipe-detail">
       <h1>{recipe.title}</h1>
@@ -131,7 +131,11 @@ const RecipeDetail = () => {
 
       <div className="rating-section">
         <div className="average-rating">
-          Average Rating: {renderStars(Math.round(averageRating))}
+          Average Rating: {typeof averageRating === 'number' && averageRating > 0 ? (
+            averageRating.toFixed(2)
+          ) : (
+            'No ratings yet'
+          )}
         </div>
         {userId && (
           <div className="user-rating">

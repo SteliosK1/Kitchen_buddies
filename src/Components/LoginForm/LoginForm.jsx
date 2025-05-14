@@ -13,7 +13,7 @@ const handleLogout = () => {
   window.location.href = '/'; // Ή όπου θέλεις να τον στείλεις
 };
 
-const LoginForm = ({ onSwitchToSignup, onForgotPassword }) => {
+const LoginForm = ({ onSwitchToSignup}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error] = useState('');
@@ -129,12 +129,6 @@ const LoginForm = ({ onSwitchToSignup, onForgotPassword }) => {
           Login
         </button>
         {error && <p style={{ color: 'white' }} className="error">{error}</p>}
-
-        <p className="link">
-          <a href="#" onClick={onForgotPassword}>
-            Forgot your password?
-          </a>
-        </p>
 
         <p className="link">
           Don't have an account? <br />

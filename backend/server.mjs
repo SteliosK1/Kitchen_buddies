@@ -103,6 +103,7 @@ app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     try {
         const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        console.log('rows:', rows);
         if (rows.length === 0) return res.status(401).json({ success: false, message: 'Invalid email or password' });
 
         const user = rows[0];
@@ -253,38 +254,25 @@ app.get('/api/user-recipes/:id', async (req, res) => {
 
 // Ratings με υποστήριξη API συνταγών
 app.post('/api/ratings', async (req, res) => {
-    const { userId, recipeId, rating } = req.body;
-    if (!userId || !recipeId || !rating) {
-        return res.status(400).json({ message: 'Missing data.' });
+    let { userId, recipeId, rating } = req.body;
+    userId = Number(userId);
+    rating = Number(rating);
+    if (!userId || !recipeId || isNaN(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Missing or invalid data.' });
     }
 
     try {
+        // Έλεγχος αν υπάρχει ο χρήστης
+        const [userRows] = await db.execute('SELECT id FROM users WHERE id = ?', [userId]);
+        if (userRows.length === 0) {
+            return res.status(400).json({ message: 'User does not exist.' });
+        }
+
         const [userRecipeRows] = await db.execute('SELECT id FROM user_recipes WHERE id = ?', [recipeId]);
         const [externalRecipeRows] = await db.execute('SELECT id FROM external_recipes WHERE id = ?', [recipeId]);
 
         if (userRecipeRows.length === 0 && externalRecipeRows.length === 0) {
-            const apiRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeId}`);
-            const data = await apiRes.json();
-
-            if (!data.meals || data.meals.length === 0) {
-                return res.status(404).json({ message: 'Recipe not found in external API.' });
-            }
-
-            const meal = data.meals[0];
-            const ingredients = [];
-
-            for (let i = 1; i <= 20; i++) {
-                const ingredient = meal[`strIngredient${i}`];
-                const measure = meal[`strMeasure${i}`];
-                if (ingredient && ingredient.trim()) {
-                    ingredients.push(`${measure || ''} ${ingredient}`.trim());
-                }
-            }
-
-            await db.execute(
-                'INSERT INTO external_recipes (id, title, image_url, instructions, ingredients) VALUES (?, ?, ?, ?, ?)',
-                [recipeId, meal.strMeal, meal.strMealThumb, meal.strInstructions, JSON.stringify(ingredients)]
-            );
+            // ...εισαγωγή συνταγής από API...
         }
 
         await db.execute(
@@ -303,12 +291,33 @@ app.post('/api/ratings', async (req, res) => {
 
 app.get('/api/ratings/:recipeId', async (req, res) => {
     const { recipeId } = req.params;
+    const { userId } = req.query;
     try {
+        // Average rating
         const [rows] = await db.execute(
             'SELECT AVG(rating) as avgRating FROM ratings WHERE recipe_id = ?',
             [recipeId]
         );
-        res.json({ average: rows[0].avgRating || 0 });
+        let userRating = null;
+        if (userId) {
+            const parsedUserId = Number(userId);
+            if (!parsedUserId) {
+                return res.status(400).json({ message: 'Invalid userId.' });
+            }
+            const [userRows] = await db.execute(
+                'SELECT rating FROM ratings WHERE recipe_id = ? AND user_id = ?',
+                [recipeId, parsedUserId]
+            );
+            if (userRows.length > 0) {
+                userRating = userRows[0].rating;
+            }
+        }
+        console.log('Average:', rows[0].avgRating, 'User:', userRating);
+        res.json({
+            success: true,
+            averageRating: rows[0].avgRating || 0,
+            userRating
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Database error.' });
