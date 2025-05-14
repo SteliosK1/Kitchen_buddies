@@ -10,6 +10,7 @@ import AuthContainer from './Components/AuthContainer/AuthContainer';
 import Profile from './Components/Profile/Profile';
 import FavoritesPage from './Components/Favorites/FavoritesPage';
 import AddRecipe from './Components/AddRecipe/AddRecipe';
+import EditRecipe from './Components/EditRecipe/EditRecipe';
 import { FavoritesProvider } from './Context/FavoritesContext'; // Εισαγωγή του FavoritesProvider
 
 const App = () => {
@@ -49,6 +50,8 @@ const App = () => {
       body.classList.add('favorites-background');
     } else if (location.pathname === '/add-recipe') {
       body.classList.add('add-recipe-background');
+    } else if (location.pathname === '/edit-recipe'){
+      body.classList.add('add-recipe-background');
     } else {
       body.classList.add('default-background');
     }
@@ -74,6 +77,8 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/add-recipe" element={<AddRecipe />} />
+        <Route path="/edit-recipe/:recipeId" element={<EditRecipe />} />
+
       </Routes>
     </>
   );

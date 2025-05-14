@@ -81,9 +81,9 @@ const Recipes = ({ searchQuery }) => {
         const data = await res.json();
         if (data.success) {
           const formatted = data.recipes.map((recipe) => ({
-            id: `u_${recipe.id}`,
+            id: recipe.id.toString(), // string για συμβατότητα με API ids
             title: recipe.title,
-            image: recipe.image || recipe.image_url || '',
+            image: recipe.image,
             description: recipe.instructions.substring(0, 100) + '...',
             isUser: true,
           }));

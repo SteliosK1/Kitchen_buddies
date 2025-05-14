@@ -223,57 +223,111 @@ app.delete('/api/favorites/rm', async (req, res) => {
 });
 
 // Συνταγές χρήστη
-app.post('/api/user-recipes', async (req, res) => {
+app.post('/api/user-recipes/add', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.id;
+
+    const { title, imageUrl, instructions, ingredients } = req.body;
+
+    // Εισαγωγή της συνταγής στη βάση δεδομένων
+    await db.execute(
+      'INSERT INTO user_recipes (user_id, title, image, instructions, ingredients) VALUES (?, ?, ?, ?, ?)',
+      [userId, title, imageUrl, instructions, JSON.stringify(ingredients)]
+    );
+
+    res.status(201).json({ success: true, message: 'Recipe added successfully!' });
+  } catch (error) {
+    console.error('Error adding recipe:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/user-recipes', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM user_recipes');
+    res.json({ success: true, recipes: rows });
+  } catch (error) {
+    console.error('Error getting user recipes:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+app.get('/api/user-recipes/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await db.execute('SELECT * FROM user_recipes WHERE id = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ success: false, message: 'Recipe not found' });
+    res.json({ success: true, recipe: rows[0] }); // <-- περιέχει και το user_id τώρα
+  } catch (error) {
+    console.error('Error getting user recipe:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Επεξεργασία συνταγής
+app.put('/api/user-recipes/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, imageUrl, instructions, ingredients } = req.body;
     const token = req.headers.authorization?.split(' ')[1];
-    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Δεν βρέθηκε το token. Παρακαλώ συνδεθείτε.' });
+    }
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.id;
 
-        const { title, imageUrl, instructions, ingredients } = req.body;
+        // Ενημέρωση της συνταγής στη βάση δεδομένων
         const [result] = await db.execute(
-            'INSERT INTO user_recipes (user_id, title, image_url, instructions, ingredients) VALUES (?, ?, ?, ?, ?)',
-            [userId, title, imageUrl, instructions, JSON.stringify(ingredients)]
+            'UPDATE user_recipes SET title = ?, image = ?, instructions = ?, ingredients = ? WHERE id = ? AND user_id = ?',
+            [title, imageUrl, instructions, JSON.stringify(ingredients), id, userId]
         );
 
-        // Επιστροφή id με prefix
-        res.status(201).json({ 
-            success: true, 
-            message: 'Recipe added successfully!',
-            id: `u_${result.insertId}`
-        });
-    } catch (error) {
-        console.error('Error adding recipe:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-app.get('/api/user-recipes', async (req, res) => {
-    try {
-        const [rows] = await db.execute('SELECT * FROM user_recipes');
-        res.json({ success: true, recipes: rows });
-    } catch (error) {
-        console.error('Error getting user recipes:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
-    }
-});
-
-app.get('/api/user-recipes/:id', async (req, res) => {
-    let { id } = req.params;
-    if (id.startsWith('u_')) {
-        id = id.slice(2); // Αφαίρεσε το "u_"
-    }
-    try {
-        const [rows] = await db.execute('SELECT * FROM user_recipes WHERE id = ?', [id]);
-        if (rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'Recipe not found' });
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: 'Η συνταγή ενημερώθηκε επιτυχώς!' });
+        } else {
+            res.status(400).json({ success: false, message: 'Δεν βρέθηκε η συνταγή ή δεν ανήκει στον χρήστη.' });
         }
-        const recipe = rows[0];
-        res.json({ success: true, recipe });
     } catch (error) {
-        console.error('Error fetching user recipe:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error('Σφάλμα κατά την επεξεργασία συνταγής:', error);
+        res.status(500).json({ success: false, message: 'Σφάλμα διακομιστή' });
+    }
+});
+
+// Διαγραφή συνταγής
+app.delete('/api/user-recipes/:id', async (req, res) => {
+    const { id } = req.params;
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Δεν βρέθηκε το token. Παρακαλώ συνδεθείτε.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        // Διαγραφή της συνταγής από τη βάση δεδομένων
+        const [result] = await db.execute(
+            'DELETE FROM user_recipes WHERE id = ? AND user_id = ?',
+            [id, userId]
+        );
+
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: 'Η συνταγή διαγράφηκε επιτυχώς!' });
+        } else {
+            res.status(400).json({ success: false, message: 'Δεν βρέθηκε η συνταγή ή δεν ανήκει στον χρήστη.' });
+        }
+    } catch (error) {
+        console.error('Σφάλμα κατά τη διαγραφή συνταγής:', error);
+        res.status(500).json({ success: false, message: 'Σφάλμα διακομιστή' });
     }
 });
 

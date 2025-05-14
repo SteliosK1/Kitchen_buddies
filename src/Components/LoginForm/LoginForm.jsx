@@ -133,9 +133,8 @@ const LoginForm = ({ onSwitchToSignup}) => {
         <p className="link">
           Don't have an account? <br />
           <a href="#" onClick={onSwitchToSignup}>
-            Sign up
+            Sign up here
           </a>{' '}
-          here
         </p>
         <p className="liw">Log in with</p>
         <div className="social-icons">

@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './AddRecipe.css';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import './EditRecipe.css';
 
-const AddRecipe = () => {
+const EditRecipe = () => {
+  const { recipeId } = useParams();
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [instructions, setInstructions] = useState('');
   const [ingredients, setIngredients] = useState(['']);
+  const [cookTime, setCookTime] = useState('');
+  const [rating, setRating] = useState(3);
 
-  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    const fetchRecipe = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/user-recipes/${recipeId}`);
+        const data = await res.json();
+        if (data.success) {
+          const r = data.recipe;
+          setTitle(r.title);
+          setImageUrl(r.image);
+          setInstructions(r.instructions);
+          setIngredients(Array.isArray(r.ingredients) ? r.ingredients : JSON.parse(r.ingredients));
+          setCookTime(r.cook_time || '');
+          setRating(r.rating || 3);
+        } else {
+          alert('Recipe not found');
+          navigate('/recipes');
+        }
+      } catch (error) {
+        console.error('Error fetching recipe:', error);
+      }
+    };
+
+    fetchRecipe();
+  }, [recipeId, navigate]);
 
   const handleIngredientChange = (index, value) => {
     const newIngredients = [...ingredients];
@@ -22,54 +52,46 @@ const AddRecipe = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const token = localStorage.getItem('token');
+
     if (!token) {
-      alert('You must be logged in to add a recipe.');
+      alert('You must be logged in to edit a recipe.');
       return;
     }
-    
-    const recipeData = {
+
+    const updatedRecipe = {
       title,
       imageUrl,
       instructions,
-      ingredients: ingredients.filter(ing => ing.trim() !== ''),
+      ingredients: ingredients.filter((i) => i.trim() !== ''),
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/user-recipes/add', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:5000/api/user-recipes/${recipeId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData),
+        body: JSON.stringify(updatedRecipe),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error:', errorText);
-        alert('Failed to add recipe.');
-        return;
-      }
 
       const data = await response.json();
 
       if (data.success) {
-        alert('Recipe added successfully!');
-        navigate('/recipes');
+        alert('Recipe updated successfully!');
+        navigate(`/recipes`);
       } else {
-        alert('Failed to add recipe.');
+        alert('Failed to update recipe');
       }
-    } catch (err) {
-      console.error('Error submitting recipe:', err);
-      alert('Something went wrong.');
+    } catch (error) {
+      console.error('Error updating recipe:', error);
+      alert('Server error while updating recipe');
     }
   };
 
   return (
     <div className="add-recipe-container">
-      <h1>Add a New Recipe</h1>
+      <h1>Edit Recipe</h1>
       <form className="add-recipe-form" onSubmit={handleSubmit}>
         <label>Title:</label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -94,10 +116,10 @@ const AddRecipe = () => {
           + Add Ingredient
         </button>
 
-        <button type="submit">Submit Recipe</button>
+        <button type="submit">Update Recipe</button>
       </form>
     </div>
   );
 };
 
-export default AddRecipe;
+export default EditRecipe;

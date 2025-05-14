@@ -6,28 +6,52 @@ const FavoritesPage = () => {
   const { favorites } = useFavorites();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem('token'); // Έλεγχος αν υπάρχει token
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     if (!token) {
-      setLoading(false); // Σταματάμε τη φόρτωση αν δεν υπάρχει token
+      setLoading(false);
       return;
     }
 
     const fetchFavoriteRecipes = async () => {
       setLoading(true);
-      const recipePromises = favorites.map(async (id) => {
-        const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
-        const data = await res.json();
-        const meal = data.meals?.[0];
 
-        return meal
-          ? {
-              id: meal.idMeal,
-              title: meal.strMeal,
-              image: meal.strMealThumb,
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
+
+      const recipePromises = favorites.map(async (id) => {
+        try {
+          // Αν είναι user recipe (δηλαδή περιέχει γράμματα ή πολύ μεγάλος αριθμός)
+          const isUserRecipe = !/^\d{5,5}$/.test(id);
+          if (isUserRecipe) {
+            const res = await fetch(`http://localhost:5000/api/user-recipes/${id}`);
+            const data = await res.json();
+            if (data.success && data.recipe) {
+              const r = data.recipe;
+              return {
+                id: r.id,
+                title: r.title,
+                image: r.image,
+                isUser: true,
+              };
             }
-          : null;
+          } else {
+            const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`);
+            const data = await res.json();
+            const meal = data.meals?.[0];
+            if (meal) {
+              return {
+                id: meal.idMeal,
+                title: meal.strMeal,
+                image: meal.strMealThumb,
+                isUser: false,
+              };
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching recipe with ID ${id}:`, error);
+        }
+        return null;
       });
 
       const resolved = await Promise.all(recipePromises);
@@ -39,7 +63,6 @@ const FavoritesPage = () => {
   }, [favorites, token]);
 
   if (!token) {
-    // Επιστρέφουμε μήνυμα αν ο χρήστης δεν είναι συνδεδεμένος
     return (
       <div className="not-logged-in">
         <div className="overlay">
@@ -50,7 +73,6 @@ const FavoritesPage = () => {
   }
 
   if (loading) {
-    // Επιστρέφουμε το spinner αν τα δεδομένα φορτώνονται
     return (
       <div className="spinner-container">
         <div className="spinner"></div>
@@ -62,14 +84,19 @@ const FavoritesPage = () => {
   return (
     <div className="favorites-container">
       <h1>Your Favorite Recipes</h1>
-      {favoriteRecipes.length === 0 ? null : (
+      {favoriteRecipes.length === 0 ? (
+        <p className="no-favorites-text">You have no favorite recipes yet.</p>
+      ) : (
         <div className="card-grid">
           {favoriteRecipes.map((recipe) => (
             <div className="recipe-card" key={recipe.id}>
               <img src={recipe.image} alt={recipe.title} className="recipe-image" />
               <div className="recipe-info">
                 <h3>{recipe.title}</h3>
-                <a href={`/recipes/${recipe.id}`} className="view-button">
+                <a
+                  href={`/recipes/${recipe.id}`}
+                  className="view-button"
+                >
                   View Recipe
                 </a>
               </div>
