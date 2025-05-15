@@ -3,7 +3,7 @@ import { useFavorites } from '../../Context/FavoritesContext';
 import './FavoritesPage.css';
 
 const FavoritesPage = () => {
-  const { favorites } = useFavorites();
+  const { favorites, toggleFavorite } = useFavorites();
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
@@ -21,7 +21,6 @@ const FavoritesPage = () => {
 
       const recipePromises = favorites.map(async (id) => {
         try {
-          // Αν είναι user recipe (δηλαδή περιέχει γράμματα ή πολύ μεγάλος αριθμός)
           const isUserRecipe = !/^\d{5,5}$/.test(id);
           if (isUserRecipe) {
             const res = await fetch(`http://localhost:5000/api/user-recipes/${id}`);
@@ -89,7 +88,14 @@ const FavoritesPage = () => {
       ) : (
         <div className="card-grid">
           {favoriteRecipes.map((recipe) => (
-            <div className="recipe-card" key={recipe.id}>
+            <div className="recipe-card" key={recipe.id} style={{ position: 'relative' }}>
+              <button
+                className="remove-favorite-btn"
+                title="Remove from favorites"
+                onClick={() => toggleFavorite(String(recipe.id))}
+              >
+                ❤️
+              </button>
               <img src={recipe.image} alt={recipe.title} className="recipe-image" />
               <div className="recipe-info">
                 <h3>{recipe.title}</h3>

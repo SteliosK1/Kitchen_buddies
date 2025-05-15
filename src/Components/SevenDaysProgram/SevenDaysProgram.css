@@ -1,0 +1,54 @@
+.seven-days-container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.seven-days-container h1 {
+  color: #e57e26;
+  margin-bottom: 18px;
+}
+
+.seven-days-intro {
+  color: #666;
+  margin-bottom: 28px;
+}
+
+.seven-days-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.seven-days-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: #f7f7f7;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 14px 18px;
+  font-size: 1.1em;
+}
+
+.day-number {
+  background: #e57e26;
+  color: #fff;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.day-desc {
+  flex: 1;
+  text-align: left;
+}

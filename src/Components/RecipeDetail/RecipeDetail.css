@@ -141,3 +141,48 @@
 .user-rating .star:hover ~ .star {
   color: #ccc;
 }
+
+.recipe-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.edit-recipe-button {
+  background: #f4a261;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1em;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.edit-recipe-button:hover {
+  background: #e57e26;
+}
+
+.delete-recipe-button {
+  background: #fff;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 1em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.delete-recipe-button:hover {
+  background: #e74c3c;
+  color: #fff;
+}

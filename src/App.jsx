@@ -11,6 +11,7 @@ import Profile from './Components/Profile/Profile';
 import FavoritesPage from './Components/Favorites/FavoritesPage';
 import AddRecipe from './Components/AddRecipe/AddRecipe';
 import EditRecipe from './Components/EditRecipe/EditRecipe';
+import SevenDaysProgram from './Components/SevenDaysProgram/SevenDaysProgram';
 import { FavoritesProvider } from './Context/FavoritesContext'; // Εισαγωγή του FavoritesProvider
 
 const App = () => {
@@ -52,6 +53,8 @@ const App = () => {
       body.classList.add('add-recipe-background');
     } else if (location.pathname === '/edit-recipe'){
       body.classList.add('add-recipe-background');
+    } else if (location.pathname === '/7days') {
+      body.classList.add('seven-days-background');
     } else {
       body.classList.add('default-background');
     }
@@ -78,7 +81,7 @@ const App = () => {
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/add-recipe" element={<AddRecipe />} />
         <Route path="/edit-recipe/:recipeId" element={<EditRecipe />} />
-
+        <Route path="/7days" element={<SevenDaysProgram />} />
       </Routes>
     </>
   );

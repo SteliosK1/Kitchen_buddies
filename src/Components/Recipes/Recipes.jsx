@@ -30,14 +30,16 @@ const Leaderboard = () => {
     <div className="leaderboard">
       <h3>⭐ Top 10 Recipes</h3>
       <ol>
-        {topRecipes.map((r, idx) => (
+        {topRecipes.map((r) => (
           <li key={r.id} className="leaderboard-item">
-            {r.image
-              ? <img src={r.image} alt={r.title} className="leaderboard-img" />
-              : <div className="leaderboard-img placeholder-img">?</div>
-            }
-            <span className="leaderboard-title">{r.title}</span>
-            <span className="leaderboard-rating">{r.avgRating.toFixed(2)} ★</span>
+            <Link to={`/recipes/${r.id}`} className="leaderboard-link">
+              {r.image
+                ? <img src={r.image} alt={r.title} className="leaderboard-img" />
+                : <div className="leaderboard-img placeholder-img">?</div>
+              }
+              <span className="leaderboard-title">{r.title}</span>
+              <span className="leaderboard-rating">{r.avgRating.toFixed(2)} ★</span>
+            </Link>
           </li>
         ))}
       </ol>
@@ -125,8 +127,9 @@ const Recipes = ({ searchQuery }) => {
         We keep it easy and fun to cook with minimal ingredients!
       </p>
 
-      <div className="recipes-header">
-        <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link>
+      <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link>
+
+      <div className="leaderboard-wrapper">
         <Leaderboard />
       </div>
 

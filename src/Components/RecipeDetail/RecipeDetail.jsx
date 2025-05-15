@@ -155,8 +155,12 @@ const RecipeDetail = () => {
     <div className="recipe-detail">
       {recipe.isUser && recipe.creatorId === userId && (
         <div className="recipe-actions">
-          <Link to={`/edit-recipe/${recipe.id}`} className="edit-recipe-button">Edit</Link>
-          <button onClick={() => handleDelete(recipe.id)} className="delete-recipe-button">Delete</button>
+          <Link to={`/edit-recipe/${recipe.id}`} className="edit-recipe-button">
+            ✏️ Edit
+          </Link>
+          <button onClick={() => handleDelete(recipe.id)} className="delete-recipe-button">
+            🗑️ Delete
+          </button>
         </div>
       )}
       <h1>{recipe.title}</h1>

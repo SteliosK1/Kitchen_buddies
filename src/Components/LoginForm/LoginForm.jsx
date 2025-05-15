@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './LoginForm.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faGoogle, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { Link } from 'react-router-dom';
 
 const isLoggedIn = localStorage.getItem('token') !== null;
 
@@ -98,6 +99,10 @@ const LoginForm = ({ onSwitchToSignup}) => {
         <p style={{ color: 'white' }}>
           <br />You have logged in for <strong>{streak}</strong> consecutive day(s)!
         </p>
+        
+        <Link to="/7days" className="seven-days-btn">
+          7 days program
+        </Link>
         <br />
         <button
           style={{ width: '100%', height: '40px' }}

@@ -83,6 +83,15 @@
   min-height: 100vh;
   backdrop-filter: blur(4px);
 }
+
+.seven-days-background {
+  background: linear-gradient(to top, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.5) 50%), url('/photo1.jpg');
+  background-position: center 45%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
 /* Media Queries */
 
 /* Για tablet (πλάτος οθόνης έως 768px) */
