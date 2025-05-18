@@ -181,10 +181,9 @@ app.post('/api/favorites/add', async (req, res) => {
     let recipeId = req.body.recipeId || req.params.recipeId;
     if (/^\d+$/.test(recipeId)) {
         // external recipe, κράτα ως έχει
-    } else if (recipeId.startsWith('u_')) {
-        // user recipe, κράτα το prefix
     } else {
         // handle error
+        return res.status(400).json({ success: false, message: 'Invalid recipeId' });
     }
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
 
@@ -204,10 +203,9 @@ app.delete('/api/favorites/rm', async (req, res) => {
     let recipeId = req.body.recipeId || req.params.recipeId;
     if (/^\d+$/.test(recipeId)) {
         // external recipe, κράτα ως έχει
-    } else if (recipeId.startsWith('u_')) {
-        // user recipe, κράτα το prefix
     } else {
         // handle error
+        return res.status(400).json({ success: false, message: 'Invalid recipeId' });
     }
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
 
@@ -336,10 +334,9 @@ app.post('/api/ratings', async (req, res) => {
     let recipeId = req.body.recipeId || req.params.recipeId;
     if (/^\d+$/.test(recipeId)) {
         // external recipe, κράτα ως έχει
-    } else if (recipeId.startsWith('u_')) {
-        // user recipe, κράτα το prefix
     } else {
         // handle error
+        return res.status(400).json({ message: 'Invalid recipeId.' });
     }
     let { userId, rating } = req.body;
     userId = Number(userId);
@@ -380,17 +377,16 @@ app.get('/api/ratings/:recipeId', async (req, res) => {
     let recipeId = req.params.recipeId;
     if (/^\d+$/.test(recipeId)) {
         // external recipe, κράτα ως έχει
-    } else if (recipeId.startsWith('u_')) {
-        // user recipe, κράτα το prefix
     } else {
         // handle error
+        return res.status(400).json({ message: 'Invalid recipeId.' });
     }
     const { userId } = req.query;
     try {
         // Average rating
         const [rows] = await db.execute(
             'SELECT AVG(rating) as avgRating FROM ratings WHERE recipe_id = ?',
-            [recipeId] // όπου recipeId είναι π.χ. "u_123" ή "52772"
+            [recipeId]
         );
         let userRating = null;
         if (userId) {
@@ -437,27 +433,18 @@ app.get('/api/leaderboard', async (req, res) => {
             let title = '';
             let image = '';
             const recipeIdStr = String(row.recipe_id);
-            if (recipeIdStr.startsWith('u_')) {
-                const id = recipeIdStr.slice(2);
-                const [userRows] = await db.execute('SELECT title, image_url as image FROM user_recipes WHERE id = ?', [id]);
-                if (userRows.length > 0) {
-                    title = userRows[0].title;
-                    image = userRows[0].image;
-                }
+            // Δοκίμασε να βρεις στη βάση
+            const [extRows] = await db.execute('SELECT title, image_url as image FROM external_recipes WHERE id = ?', [recipeIdStr]);
+            if (extRows.length > 0) {
+                title = extRows[0].title;
+                image = extRows[0].image;
             } else {
-                // Δοκίμασε να βρεις στη βάση
-                const [extRows] = await db.execute('SELECT title, image_url as image FROM external_recipes WHERE id = ?', [recipeIdStr]);
-                if (extRows.length > 0) {
-                    title = extRows[0].title;
-                    image = extRows[0].image;
-                } else {
-                    // Φέρε από το API αν δεν υπάρχει στη βάση
-                    const apiRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeIdStr}`);
-                    const apiData = await apiRes.json();
-                    if (apiData.meals && apiData.meals.length > 0) {
-                        title = apiData.meals[0].strMeal;
-                        image = apiData.meals[0].strMealThumb;
-                    }
+                // Φέρε από το API αν δεν υπάρχει στη βάση
+                const apiRes = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${recipeIdStr}`);
+                const apiData = await apiRes.json();
+                if (apiData.meals && apiData.meals.length > 0) {
+                    title = apiData.meals[0].strMeal;
+                    image = apiData.meals[0].strMealThumb;
                 }
             }
             return {
