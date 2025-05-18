@@ -1,11 +1,12 @@
 import './Navbar.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SearchBar from './../Searchbar/Searchbar';
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
+  const dropdownRef = useRef(null);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -33,6 +34,28 @@ const Navbar = () => {
     fetchRecipes();
   }, [searchQuery]);
 
+  // Κλείσιμο dropdown όταν κάνεις click εκτός
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        setRecipes([]);
+      }
+    };
+
+    if (recipes.length > 0) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [recipes]);
+
   const handleSelectRecipe = (id) => {
     window.location.href = `/recipes/${id}`;
   };
@@ -58,7 +81,7 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <div className="search-bar-container">
+      <div className="search-bar-container" ref={dropdownRef}>
         <SearchBar onSearch={handleSearch} />
         {loading && <p>Loading...</p>}
 

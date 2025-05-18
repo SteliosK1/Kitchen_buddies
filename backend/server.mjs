@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import morgan from 'morgan';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
-import fetch from 'node-fetch'; // Μην ξεχάσεις να το εγκαταστήσεις: npm i node-fetch
+import fetch from 'node-fetch'; 
 
 const JWT_SECRET = 'your_secret_key';
 
