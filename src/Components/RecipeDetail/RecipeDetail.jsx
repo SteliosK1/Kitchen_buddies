@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useFavorites } from '../../Context/FavoritesContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import './RecipeDetail.css';
 
 const RecipeDetail = () => {
@@ -11,6 +13,8 @@ const RecipeDetail = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [userRating, setUserRating] = useState(null);
   const [hoveredStar, setHoveredStar] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
   const token = localStorage.getItem('token');
   const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
 
@@ -69,8 +73,21 @@ const RecipeDetail = () => {
       }
     };
 
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/comments/${recipeId}`);
+        const data = await res.json();
+        if (data.success) {
+          setComments(data.comments);
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    };
+
     fetchRecipe();
     fetchRatings();
+    fetchComments();
   }, [recipeId, userId]);
 
   const submitRating = async (rating) => {
@@ -100,7 +117,7 @@ const RecipeDetail = () => {
     }
   };
 
-    const handleDelete = async (recipeId) => {
+  const handleDelete = async (recipeId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this recipe?');
     if (confirmDelete) {
       try {
@@ -121,6 +138,36 @@ const RecipeDetail = () => {
         console.error('Error deleting recipe:', error);
         alert('Server error while deleting');
       }
+    }
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!token) {
+      alert('You must be logged in to comment!');
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:5000/api/comments/${recipeId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ comment: newComment }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNewComment('');
+        // Φέρε ξανά τα σχόλια
+        const res2 = await fetch(`http://localhost:5000/api/comments/${recipeId}`);
+        const data2 = await res2.json();
+        if (data2.success) setComments(data2.comments);
+      } else {
+        alert(data.message || 'Error adding comment');
+      }
+    } catch (err) {
+      alert('Server error');
     }
   };
 
@@ -159,12 +206,22 @@ const RecipeDetail = () => {
             ✏️ Edit
           </Link>
           <button onClick={() => handleDelete(recipe.id)} className="delete-recipe-button">
-            🗑️ Delete
+            <FontAwesomeIcon icon={faTrash} /> Delete
           </button>
         </div>
       )}
       <h1>{recipe.title}</h1>
-      <img src={recipe.image} alt={recipe.title} className="recipe-image" />
+      <img
+        src={
+          recipe.image
+            ? recipe.image.startsWith('/uploads/')
+              ? `http://localhost:5000${recipe.image}`
+              : recipe.image
+            : '/default-image.jpg'
+        }
+        alt={recipe.title}
+        className="recipe-image"
+      />
 
       <div className="rating-section">
         <div className="average-rating">
@@ -196,6 +253,58 @@ const RecipeDetail = () => {
 
       <h2>Steps</h2>
       <div className="instructions">{recipe.instructions}</div>
+
+      <h2>Comments</h2>
+      <div className="comments-section">
+        {userId && (
+          <form onSubmit={handleAddComment} className="comment-form">
+            <textarea
+              value={newComment}
+              onChange={e => setNewComment(e.target.value)}
+              placeholder="Write your comment..."
+              rows={3}
+              required
+            />
+            <button type="submit">Add Comment</button>
+          </form>
+        )}
+        {comments.length === 0 && <p>No comments yet.</p>}
+        <ul className="comments-list">
+          {comments.map(c => (
+            <li key={c.id}>
+              <strong>{c.fullname}:</strong> {c.comment}
+              <span style={{ color: '#aaa', marginLeft: 8, fontSize: '0.9em' }}>
+                {new Date(c.created_at).toLocaleString()}
+              </span>
+              {/* Εμφάνιση κουμπιού διαγραφής μόνο για το δικό σου σχόλιο */}
+              {userId === c.user_id && (
+                <button
+                  className="delete-comment-btn"
+                  onClick={async () => {
+                    if (window.confirm('Delete this comment?')) {
+                      const res = await fetch(`http://localhost:5000/api/comments/${c.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                        },
+                      });
+                      const data = await res.json();
+                      if (data.success) {
+                        setComments(comments.filter(com => com.id !== c.id));
+                      } else {
+                        alert(data.message || 'Error deleting comment');
+                      }
+                    }
+                  }}
+                  title="Delete"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };

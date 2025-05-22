@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch'; 
+import nodemailer from 'nodemailer';
+import multer from 'multer';
+import path from 'path';
 
 const JWT_SECRET = 'your_secret_key';
 
@@ -76,6 +79,30 @@ await db.execute(`
     PRIMARY KEY (user_id, recipe_id)
   )
 `);
+
+await db.execute(`
+  CREATE TABLE IF NOT EXISTS comments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    recipe_id VARCHAR(20),
+    user_id INT,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (recipe_id) REFERENCES external_recipes(id)
+)
+`);
+
+// Ρύθμιση αποθήκευσης εικόνων
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Βεβαιώσου ότι υπάρχει ο φάκελος uploads
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.get('/', (req, res) => {
@@ -221,7 +248,7 @@ app.delete('/api/favorites/rm', async (req, res) => {
 });
 
 // Συνταγές χρήστη
-app.post('/api/user-recipes/add', async (req, res) => {
+app.post('/api/user-recipes/add', upload.single('image'), async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     return res.status(401).json({ success: false, message: 'No token provided' });
@@ -231,12 +258,12 @@ app.post('/api/user-recipes/add', async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.id;
 
-    const { title, imageUrl, instructions, ingredients } = req.body;
+    const { title, instructions, ingredients } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.imageUrl || '';
 
-    // Εισαγωγή της συνταγής στη βάση δεδομένων
     await db.execute(
       'INSERT INTO user_recipes (user_id, title, image, instructions, ingredients) VALUES (?, ?, ?, ?, ?)',
-      [userId, title, imageUrl, instructions, JSON.stringify(ingredients)]
+      [userId, title, imageUrl, instructions, JSON.stringify(JSON.parse(ingredients))]
     );
 
     res.status(201).json({ success: true, message: 'Recipe added successfully!' });
@@ -460,6 +487,129 @@ app.get('/api/leaderboard', async (req, res) => {
         res.json({ success: true, leaderboard: filteredLeaderboard });
     } catch (error) {
         console.error('Error fetching leaderboard:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Ρύθμισε το transporter (δοκιμαστικά με Gmail, βάλε τα δικά σου στοιχεία)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'your_email@gmail.com',
+        pass: 'your_gmail_app_password'
+    }
+});
+
+// Forgot password endpoint
+app.post('/api/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
+
+    try {
+        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        if (rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'No user with this email.' });
+        }
+        const user = rows[0];
+        // Δημιουργία token επαναφοράς (ισχύει για 1 ώρα)
+        const resetToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+
+        // Στείλε email
+        await transporter.sendMail({
+            from: '"Kitchen Buddies" <your_email@gmail.com>',
+            to: email,
+            subject: 'Password Reset',
+            html: `<p>Click <a href="${resetLink}">here</a> to reset your password. This link is valid for 1 hour.</p>`
+        });
+
+        res.json({ success: true, message: 'Password reset email sent!' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.post('/api/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ success: false, message: 'Missing data.' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, decoded.id]);
+        res.json({ success: true, message: 'Password updated successfully!' });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(400).json({ success: false, message: 'Invalid or expired token.' });
+    }
+});
+
+// --- Comments Endpoints ---
+
+// Get comments for a recipe
+app.get('/api/comments/:recipeId', async (req, res) => {
+    const { recipeId } = req.params;
+    try {
+        const [rows] = await db.execute(
+            `SELECT comments.*, users.fullname FROM comments 
+             JOIN users ON comments.user_id = users.id 
+             WHERE recipe_id = ? ORDER BY created_at DESC`, 
+            [recipeId]
+        );
+        res.json({ success: true, comments: rows });
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Add a comment to a recipe (only for logged-in users)
+app.post('/api/comments/:recipeId', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const { recipeId } = req.params;
+        const { comment } = req.body;
+        if (!comment || !comment.trim()) {
+            return res.status(400).json({ success: false, message: 'Comment cannot be empty' });
+        }
+        await db.execute(
+            'INSERT INTO comments (recipe_id, user_id, comment) VALUES (?, ?, ?)',
+            [recipeId, userId, comment]
+        );
+        res.json({ success: true, message: 'Comment added!' });
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// Διαγραφή σχολίου
+app.delete('/api/comments/:commentId', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const { commentId } = req.params;
+
+        // Διαγράφει μόνο αν το σχόλιο ανήκει στον χρήστη
+        const [result] = await db.execute(
+            'DELETE FROM comments WHERE id = ? AND user_id = ?',
+            [commentId, userId]
+        );
+        if (result.affectedRows > 0) {
+            res.json({ success: true, message: 'Comment deleted!' });
+        } else {
+            res.status(403).json({ success: false, message: 'Not allowed to delete this comment.' });
+        }
+    } catch (error) {
+        console.error('Error deleting comment:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });

@@ -12,7 +12,8 @@ import FavoritesPage from './Components/Favorites/FavoritesPage';
 import AddRecipe from './Components/AddRecipe/AddRecipe';
 import EditRecipe from './Components/EditRecipe/EditRecipe';
 import SevenDaysProgram from './Components/SevenDaysProgram/SevenDaysProgram';
-import { FavoritesProvider } from './Context/FavoritesContext'; // Εισαγωγή του FavoritesProvider
+import ResetPassword from './Components/ResetPassword/ResetPassword';
+import { FavoritesProvider } from './Context/FavoritesContext'; 
 
 const App = () => {
   const location = useLocation();
@@ -82,6 +83,7 @@ const App = () => {
         <Route path="/add-recipe" element={<AddRecipe />} />
         <Route path="/edit-recipe/:recipeId" element={<EditRecipe />} />
         <Route path="/7days" element={<SevenDaysProgram />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </>
   );

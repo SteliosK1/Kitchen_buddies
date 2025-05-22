@@ -139,7 +139,17 @@ const Recipes = ({ searchQuery }) => {
             <div className="favorite-icons" onClick={() => toggleFavorite(String(recipe.id))}>
               {favorites.includes(String(recipe.id)) ? '❤️' : '🤍'}
             </div>
-            <img src={recipe.image} alt={recipe.title} className="recipe-image" />
+            <img
+              src={
+                recipe.image
+                  ? recipe.image.startsWith('/uploads/')
+                    ? `http://localhost:5000${recipe.image}`
+                    : recipe.image
+                  : '/default-image.jpg'
+              }
+              alt={recipe.title}
+              className="recipe-image"
+            />
             <div className="recipe-info">
               <h3>{recipe.title}</h3>
               <p className="recipe-description">{recipe.description}</p>

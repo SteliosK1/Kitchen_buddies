@@ -4,9 +4,9 @@ import './AddRecipe.css';
 
 const AddRecipe = () => {
   const [title, setTitle] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
   const [instructions, setInstructions] = useState('');
   const [ingredients, setIngredients] = useState(['']);
+  const [imageFile, setImageFile] = useState(null);
 
   const navigate = useNavigate();
 
@@ -20,30 +20,32 @@ const AddRecipe = () => {
     setIngredients([...ingredients, '']);
   };
 
+  const handleImageChange = (e) => {
+    setImageFile(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const token = localStorage.getItem('token');
     if (!token) {
       alert('You must be logged in to add a recipe.');
       return;
     }
-    
-    const recipeData = {
-      title,
-      imageUrl,
-      instructions,
-      ingredients: ingredients.filter(ing => ing.trim() !== ''),
-    };
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('instructions', instructions);
+    formData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.trim() !== '')));
+    if (imageFile) formData.append('image', imageFile);
 
     try {
       const response = await fetch('http://localhost:5000/api/user-recipes/add', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(recipeData),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -74,8 +76,12 @@ const AddRecipe = () => {
         <label>Title:</label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
 
-        <label>Image URL:</label>
-        <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} required />
+        <label>Image:</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
 
         <label>Instructions:</label>
         <textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} required />

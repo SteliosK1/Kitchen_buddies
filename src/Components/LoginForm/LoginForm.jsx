@@ -82,6 +82,25 @@ const LoginForm = ({ onSwitchToSignup}) => {
     }
   };
 
+  const handleForgotPassword = () => {
+    const emailPrompt = prompt('Please enter your email to reset your password:');
+    if (!emailPrompt) return;
+    fetch('/api/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailPrompt }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Check your email for password reset instructions!');
+        } else {
+          alert(data.message || 'Something went wrong.');
+        }
+      })
+      .catch(() => alert('Server error. Please try again later.'));
+  };
+
   if (isLoggedIn) {
     // Αν είναι συνδεδεμένος, εμφανίζουμε περισσότερες πληροφορίες
     return (
@@ -134,6 +153,13 @@ const LoginForm = ({ onSwitchToSignup}) => {
           Login
         </button>
         {error && <p style={{ color: 'white' }} className="error">{error}</p>}
+
+        <p
+          className="forgot-password-link"
+          onClick={handleForgotPassword}
+        >
+          Forgot my password
+        </p>
 
         <p className="link">
           Don't have an account? <br />

@@ -1,6 +1,6 @@
 .form{
     width: 285px;
-    height: 440px;
+    height: 460px;
     background: linear-gradient(to top, rgba(0,0,0,0.8)50%,rgba(0,0,0,0.8)50%);
     position: absolute;
     top: 140px;
@@ -175,4 +175,16 @@
         width: 100%; /* Πλήρες πλάτος */
         font-size: 14px; /* Ακόμα μικρότερο μέγεθος γραμματοσειράς */
     }
+}
+
+.forgot-password-link {
+  color: #8cabab;
+  cursor: pointer;
+  margin-top: 10px;
+  text-align: center;
+  transition: color 0.2s;
+}
+.forgot-password-link:hover {
+  color: #5e7b7b;
+  text-decoration: underline;
 }

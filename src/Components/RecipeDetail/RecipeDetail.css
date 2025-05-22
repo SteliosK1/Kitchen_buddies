@@ -186,3 +186,57 @@
   background: #e74c3c;
   color: #fff;
 }
+
+/* Comments section styles */
+.comments-section {
+  margin-top: 2rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.comment-form textarea {
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 8px;
+  margin-bottom: 8px;
+  resize: vertical;
+}
+
+.comment-form button {
+  background: #f4a261;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.comments-list {
+  list-style: none;
+  padding: 0;
+}
+
+.comments-list li {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 6px;
+}
+
+.delete-comment-btn {
+  background: #fff;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 4px;
+  padding: 2px 10px;
+  margin-left: 10px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.delete-comment-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}

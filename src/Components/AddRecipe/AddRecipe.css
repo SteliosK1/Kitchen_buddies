@@ -40,6 +40,13 @@
   min-height: 120px;
 }
 
+.add-recipe-form input[type="file"] {
+  padding: 8px;
+  border: none;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
 .add-recipe-button {
   padding: 12px;
   background-color: #8cabab;
@@ -60,4 +67,5 @@
   margin-top: 20px;
   text-align: center;
   color: #28a745;
-  font-weight: bold;}
+  font-weight: bold;
+}
