@@ -495,7 +495,7 @@ app.get('/api/leaderboard', async (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'your_email@gmail.com',
+        user: 'int02476@uoi.gr',
         pass: 'your_gmail_app_password'
     }
 });

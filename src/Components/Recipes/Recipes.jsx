@@ -127,7 +127,9 @@ const Recipes = ({ searchQuery }) => {
         We keep it easy and fun to cook with minimal ingredients!
       </p>
 
-      <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link>
+      {localStorage.getItem('token') && (
+        <Link to="/add-recipe" className="add-recipe-button">+ Add New Recipe</Link>
+      )}
 
       <div className="leaderboard-wrapper">
         <Leaderboard />

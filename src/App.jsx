@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './Components/Navbar/Navbar';
 import Hero from './Components/Hero/Hero';
 import About from './Components/About/About';
@@ -61,6 +61,11 @@ const App = () => {
     }
   }, [location]);
 
+  const PrivateRoute = ({ children }) => {
+    const token = localStorage.getItem('token');
+    return token ? children : <Navigate to="/login" />;
+  };
+
   return (
     <>
       <Navbar onSearch={setSearchQuery} />
@@ -80,7 +85,14 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/add-recipe" element={<AddRecipe />} />
+        <Route
+          path="/add-recipe"
+          element={
+            <PrivateRoute>
+              <AddRecipe />
+            </PrivateRoute>
+          }
+        />
         <Route path="/edit-recipe/:recipeId" element={<EditRecipe />} />
         <Route path="/7days" element={<SevenDaysProgram />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
