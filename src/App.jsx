@@ -13,6 +13,7 @@ import AddRecipe from './Components/AddRecipe/AddRecipe';
 import EditRecipe from './Components/EditRecipe/EditRecipe';
 import SevenDaysProgram from './Components/SevenDaysProgram/SevenDaysProgram';
 import ResetPassword from './Components/ResetPassword/ResetPassword';
+import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
 import { FavoritesProvider } from './Context/FavoritesContext'; 
 
 const App = () => {
@@ -96,6 +97,7 @@ const App = () => {
         <Route path="/edit-recipe/:recipeId" element={<EditRecipe />} />
         <Route path="/7days" element={<SevenDaysProgram />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </>
   );

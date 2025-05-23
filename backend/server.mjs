@@ -496,37 +496,44 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'int02476@uoi.gr',
-        pass: 'your_gmail_app_password'
+        pass: 'alqdjcwjjnnxpsur'
     }
 });
 
 // Forgot password endpoint
 app.post('/api/forgot-password', async (req, res) => {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ success: false, message: 'Email is required.' });
+    if (!email) return res.status(400).json({ success: false, message: 'Απαιτείται email.' });
 
     try {
-        const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
-        if (rows.length === 0) {
-            return res.status(404).json({ success: false, message: 'No user with this email.' });
+        // Βρες τον χρήστη
+        const [users] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+        if (!users.length) {
+            // Για λόγους ασφαλείας, απάντησε πάντα το ίδιο μήνυμα
+            return res.json({ success: true, message: 'Αν υπάρχει ο λογαριασμός, στάλθηκε email επαναφοράς.' });
         }
-        const user = rows[0];
-        // Δημιουργία token επαναφοράς (ισχύει για 1 ώρα)
-        const resetToken = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
-        const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+
+        const user = users[0];
+        // Δημιούργησε token (λήγει σε 1 ώρα)
+        const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
+        const resetUrl = `http://localhost:5173/reset-password/${token}`;
 
         // Στείλε email
         await transporter.sendMail({
-            from: '"Kitchen Buddies" <your_email@gmail.com>',
+            from: '"Kitchen Buddies" <int02476@uoi.gr>',
             to: email,
-            subject: 'Password Reset',
-            html: `<p>Click <a href="${resetLink}">here</a> to reset your password. This link is valid for 1 hour.</p>`
+            subject: 'Ανάκτηση Κωδικού',
+            html: `
+                <p>Κάνε κλικ στον παρακάτω σύνδεσμο για να αλλάξεις τον κωδικό σου:</p>
+                <a href="${resetUrl}">${resetUrl}</a>
+                <p>Ο σύνδεσμος ισχύει για 1 ώρα.</p>
+            `
         });
 
-        res.json({ success: true, message: 'Password reset email sent!' });
+        res.json({ success: true, message: 'Αν υπάρχει ο λογαριασμός, στάλθηκε email επαναφοράς.' });
     } catch (error) {
-        console.error('Forgot password error:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Σφάλμα διακομιστή.' });
     }
 });
 
@@ -537,7 +544,7 @@ app.post('/api/reset-password', async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const hashedPassword = await bcrypt.hash(password, 10);
-        await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, decoded.id]);
+        await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, decoded.userId]);
         res.json({ success: true, message: 'Password updated successfully!' });
     } catch (error) {
         console.error('Reset password error:', error);
