@@ -27,6 +27,28 @@ const Profile = () => {
     }
   }, [token]);
 
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (data.success) {
+        setUser(data.user);
+        setFormData(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+    } catch (err) {
+      // handle error
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchUserProfile();
+    }
+  }, [token]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -101,10 +123,10 @@ const Profile = () => {
   }
 
   if (!user) {
-     return (
+    return (
       <div className="spinner-container">
         <div className="spinner"></div>
-        <p className='loading-text'>Loading profile...</p>
+        <p className="loading-text">Loading profile...</p>
       </div>
     );
   }
@@ -176,7 +198,14 @@ const Profile = () => {
           </div>
         ) : (
           <div className="profile-details">
-            <h2>{user.fullname}</h2>
+            <h2>
+              {user.fullname}
+              {user.achievements && user.achievements.includes('first_comment') && (
+                <span title="First Comment Achievement" style={{  fontSize: 22 }}>
+                  🏅
+                </span>
+              )}
+            </h2>
             <p>Email: {user.email}</p>
             <p>Phone: {user.phone || 'N/A'}</p>
             <p>Address: {user.address || 'N/A'}</p>

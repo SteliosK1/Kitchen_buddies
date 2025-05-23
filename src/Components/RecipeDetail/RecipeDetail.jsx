@@ -166,7 +166,7 @@ const RecipeDetail = () => {
       } else {
         alert(data.message || 'Error adding comment');
       }
-    } catch (err) {
+    } catch (error) {
       alert('Server error');
     }
   };

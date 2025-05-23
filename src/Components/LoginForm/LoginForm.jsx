@@ -114,7 +114,15 @@ const LoginForm = ({ onSwitchToSignup}) => {
           className="user-avatar"
         />
         <br />
-        <p style={{ color: 'white' }}>Welcome back, {user.fullname}!</p>
+        <p style={{ color: 'white' }}>
+          Welcome back, {user.fullname}
+          {user.achievements && user.achievements.includes('first_comment') && (
+            <span title="First Comment Achievement" style={{ fontSize: 18 }}>
+              🏅
+            </span>
+          )}
+          !
+        </p>
         <p style={{ color: 'white' }}>
           <br />You have logged in for <strong>{streak}</strong> consecutive day(s)!
         </p>

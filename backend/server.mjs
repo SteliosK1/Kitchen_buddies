@@ -153,6 +153,7 @@ app.post('/api/login', async (req, res) => {
                 phone: user.phone || '',
                 address: user.address || '',
                 bio: user.bio || '',
+                achievements: user.achievements ? JSON.parse(user.achievements) : [],
             },
         });
     } catch (error) {
@@ -187,6 +188,33 @@ app.put('/api/update-profile', async (req, res) => {
     }
 });
 
+// Προφίλ χρήστη
+app.get('/api/profile', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const [rows] = await db.execute('SELECT * FROM users WHERE id = ?', [userId]);
+        if (!rows.length) return res.status(404).json({ success: false, message: 'User not found' });
+        const user = rows[0];
+        res.json({
+            success: true,
+            user: {
+                id: user.id,
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone || '',
+                address: user.address || '',
+                bio: user.bio || '',
+                achievements: user.achievements ? JSON.parse(user.achievements) : [],
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
 // Αγαπημένες συνταγές
 app.get('/api/favorites', async (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
@@ -209,7 +237,6 @@ app.post('/api/favorites/add', async (req, res) => {
     if (/^\d+$/.test(recipeId)) {
         // external recipe, κράτα ως έχει
     } else {
-        // handle error
         return res.status(400).json({ success: false, message: 'Invalid recipeId' });
     }
     if (!token) return res.status(401).json({ success: false, message: 'No token provided' });
@@ -218,7 +245,7 @@ app.post('/api/favorites/add', async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const userId = decoded.id;
         await db.execute('INSERT INTO favorites (user_id, recipe_id) VALUES (?, ?)', [userId, recipeId]);
-        res.status(201).json({ success: true, message: 'Added to favorites' });
+        res.json({ success: true, message: 'Added to favorites!' });
     } catch (error) {
         console.error('Error adding to favorites:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -588,7 +615,25 @@ app.post('/api/comments/:recipeId', async (req, res) => {
             'INSERT INTO comments (recipe_id, user_id, comment) VALUES (?, ?, ?)',
             [recipeId, userId, comment]
         );
-        res.json({ success: true, message: 'Comment added!' });
+
+        // Ελέγχει αν είναι το πρώτο σχόλιο του χρήστη
+        const [comments] = await db.execute('SELECT COUNT(*) as cnt FROM comments WHERE user_id = ?', [userId]);
+        let firstCommentAchievement = false;
+        if (comments[0].cnt === 1) {
+            // Δώσε το achievement
+            const [userRows] = await db.execute('SELECT achievements FROM users WHERE id = ?', [userId]);
+            let achievements = [];
+            if (userRows[0].achievements) {
+                achievements = JSON.parse(userRows[0].achievements);
+            }
+            if (!achievements.includes('first_comment')) {
+                achievements.push('first_comment');
+                await db.execute('UPDATE users SET achievements = ? WHERE id = ?', [JSON.stringify(achievements), userId]);
+                firstCommentAchievement = true;
+            }
+        }
+
+        res.json({ success: true, message: 'Comment added!', firstCommentAchievement });
     } catch (error) {
         console.error('Error adding comment:', error);
         res.status(500).json({ success: false, message: 'Server error' });
