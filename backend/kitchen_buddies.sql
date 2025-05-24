@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Εξυπηρετητής: 127.0.0.1
--- Χρόνος δημιουργίας: 18 Μάη 2025 στις 16:08:59
+-- Χρόνος δημιουργίας: 24 Μάη 2025 στις 14:36:35
 -- Έκδοση διακομιστή: 10.4.32-MariaDB
 -- Έκδοση PHP: 8.2.12
 
@@ -20,6 +20,50 @@ SET time_zone = "+00:00";
 --
 -- Βάση δεδομένων: `kitchen_buddies`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Δομή πίνακα για τον πίνακα `achievements`
+--
+
+CREATE TABLE `achievements` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `icon` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Άδειασμα δεδομένων του πίνακα `achievements`
+--
+
+INSERT INTO `achievements` (`id`, `name`, `description`, `icon`) VALUES
+(1, 'Πρώτη Συνταγή', 'Πρόσθεσε την πρώτη σου συνταγή!', 'medal_bronze.png'),
+(2, '5 Συνταγές', 'Πρόσθεσε 5 συνταγές!', 'medal_silver.png'),
+(3, 'Πρώτο Σχόλιο', 'Άφησε το πρώτο σου σχόλιο!', 'comment_badge.png'),
+(4, '10 Likes', 'Μια συνταγή σου πήρε 10 likes!', 'star_badge.png');
+
+-- --------------------------------------------------------
+
+--
+-- Δομή πίνακα για τον πίνακα `comments`
+--
+
+CREATE TABLE `comments` (
+  `id` int(11) NOT NULL,
+  `recipe_id` varchar(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Άδειασμα δεδομένων του πίνακα `comments`
+--
+
+INSERT INTO `comments` (`id`, `recipe_id`, `user_id`, `comment`, `created_at`) VALUES
+(11, '52949', 3, 'dsadas', '2025-05-23 13:55:24');
 
 -- --------------------------------------------------------
 
@@ -59,13 +103,8 @@ CREATE TABLE `favorites` (
 --
 
 INSERT INTO `favorites` (`id`, `user_id`, `recipe_id`) VALUES
-(70, 3, 52948),
-(71, 3, 52949),
-(72, 3, 52952),
-(125, 5, 52947),
-(126, 5, 52948),
-(127, 5, 52949),
-(128, 5, 52950);
+(139, 3, 52949),
+(141, 3, 52950);
 
 -- --------------------------------------------------------
 
@@ -92,7 +131,11 @@ INSERT INTO `ratings` (`id`, `user_id`, `recipe_id`, `rating`, `source`) VALUES
 (97, 3, 52947, 2, 'user'),
 (104, 3, 2, 5, 'user'),
 (105, 5, 2, 5, 'user'),
-(107, 5, 52947, 3, 'user');
+(107, 5, 52947, 3, 'user'),
+(110, 5, 52772, 4, 'user'),
+(111, 12, 52948, 4, 'user'),
+(113, 3, 3, 3, 'user'),
+(117, 3, 5, 3, 'user');
 
 -- --------------------------------------------------------
 
@@ -107,16 +150,31 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text DEFAULT NULL,
-  `bio` text DEFAULT NULL
+  `bio` text DEFAULT NULL,
+  `achievements` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`achievements`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Άδειασμα δεδομένων του πίνακα `users`
 --
 
-INSERT INTO `users` (`id`, `fullname`, `email`, `password`, `phone`, `address`, `bio`) VALUES
-(3, 'stelios ', 'int02476@uoi.gr', '$2b$10$.WyC7JLCOkAEDBsk/PjLb.OjF8eCyoh6KWHFfmWQEaVrL0A1USS.e', '6937042571', 'dsadasd', 'smart '),
-(5, 'test', 'test@example.com', '$2b$10$NW0n.rcbec0L82HAr3nyiuhohucCaWxR31.2s/M.OFIcSxVOQwAjy', NULL, NULL, NULL);
+INSERT INTO `users` (`id`, `fullname`, `email`, `password`, `phone`, `address`, `bio`, `achievements`) VALUES
+(3, 'stelios ', 'int02476@uoi.gr', '$2b$10$.WyC7JLCOkAEDBsk/PjLb.OjF8eCyoh6KWHFfmWQEaVrL0A1USS.e', '6937042571', 'dsadasd', 'smart ', '[\"first_comment\"]'),
+(5, 'test updated', 'test@example.com', '$2b$10$NW0n.rcbec0L82HAr3nyiuhohucCaWxR31.2s/M.OFIcSxVOQwAjy', '6900000000', 'Athens', 'bio text', '[]'),
+(12, 'xristopoulos', 'xristopoulos@gmail.com', '$2b$10$5Q3htPpW.feRjDtIKDaVveskC9RENTE.r6zpFzS4DtE0/3YMVuFGy', '8786768788', '', '', NULL),
+(13, 'stelios', 'jordanstelios2003@gmail.com', '$2b$10$3lFEkUPqQVTf9D5neKpoB.kQB.GQuGoLOY8Xct25Kkn6vsE77eIIS', NULL, NULL, NULL, '[]');
+
+-- --------------------------------------------------------
+
+--
+-- Δομή πίνακα για τον πίνακα `user_achievements`
+--
+
+CREATE TABLE `user_achievements` (
+  `user_id` int(11) NOT NULL,
+  `achievement_id` int(11) NOT NULL,
+  `achieved_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -128,7 +186,7 @@ CREATE TABLE `user_recipes` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `image` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
   `instructions` text NOT NULL,
   `ingredients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`ingredients`)),
   `cook_time` varchar(50) DEFAULT NULL,
@@ -147,6 +205,19 @@ INSERT INTO `user_recipes` (`id`, `user_id`, `title`, `image`, `instructions`, `
 --
 -- Ευρετήρια για άχρηστους πίνακες
 --
+
+--
+-- Ευρετήρια για πίνακα `achievements`
+--
+ALTER TABLE `achievements`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Ευρετήρια για πίνακα `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Ευρετήρια για πίνακα `external_recipes`
@@ -177,6 +248,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Ευρετήρια για πίνακα `user_achievements`
+--
+ALTER TABLE `user_achievements`
+  ADD PRIMARY KEY (`user_id`,`achievement_id`),
+  ADD KEY `achievement_id` (`achievement_id`);
+
+--
 -- Ευρετήρια για πίνακα `user_recipes`
 --
 ALTER TABLE `user_recipes`
@@ -188,32 +266,50 @@ ALTER TABLE `user_recipes`
 --
 
 --
+-- AUTO_INCREMENT για πίνακα `achievements`
+--
+ALTER TABLE `achievements`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT για πίνακα `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT για πίνακα `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=142;
 
 --
 -- AUTO_INCREMENT για πίνακα `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
 
 --
 -- AUTO_INCREMENT για πίνακα `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT για πίνακα `user_recipes`
 --
 ALTER TABLE `user_recipes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Περιορισμοί για άχρηστους πίνακες
 --
+
+--
+-- Περιορισμοί για πίνακα `comments`
+--
+ALTER TABLE `comments`
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Περιορισμοί για πίνακα `favorites`
@@ -226,6 +322,13 @@ ALTER TABLE `favorites`
 --
 ALTER TABLE `ratings`
   ADD CONSTRAINT `ratings_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Περιορισμοί για πίνακα `user_achievements`
+--
+ALTER TABLE `user_achievements`
+  ADD CONSTRAINT `user_achievements_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `user_achievements_ibfk_2` FOREIGN KEY (`achievement_id`) REFERENCES `achievements` (`id`) ON DELETE CASCADE;
 
 --
 -- Περιορισμοί για πίνακα `user_recipes`
